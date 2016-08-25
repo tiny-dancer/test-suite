@@ -17,7 +17,8 @@ export function test(t) {
           t.expect(contacts.length > 0).toBe(true);
           contacts.forEach(({ id, name, phoneNumber, email}) => {
             t.expect(typeof id === 'number').toBe(true);
-            t.expect(typeof name === 'string').toBe(true);
+            t.expect(typeof name === 'string' ||
+                     typeof name === 'undefined').toBe(true);
             t.expect(typeof phoneNumber === 'string' ||
                      typeof phoneNumber === 'undefined').toBe(true);
             t.expect(typeof email === 'string' ||
