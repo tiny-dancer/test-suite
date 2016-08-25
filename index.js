@@ -181,15 +181,25 @@ class App extends React.Component {
   // --- Rendering -------------------------------------------------------------
 
   _renderSpecResult = (r) => {
+    const status = r.get('status') || 'running';
     return (
       <View
         key={r.get('id')}
         style={{ paddingLeft: 10,
                  marginVertical: 3,
-                 borderColor: r.get('failedExpectations').size > 0 ? '#f00' : '#0f0',
+                 borderColor: {
+                   running: '#ff0',
+                   passed: '#0f0',
+                   failed: '#f00',
+                   disabled: '#888',
+                 }[status],
                  borderLeftWidth: 3 }}>
         <Text style={{ fontSize: 18 }}>
-          {r.get('description')} ({r.get('status') || 'running'})
+          {{
+             running: '😮',
+             passed: '😄',
+             failed: '😞',
+           }[status]} {r.get('description')} ({status})
         </Text>
         {
           r.get('failedExpectations').map((e, i) => (
