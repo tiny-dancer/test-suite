@@ -1,0 +1,10 @@
+{
+  "name": "test-suite",
+  "description": "Exponent Test Suite",
+  "slug": "test-suite",
+  "version": "1.0.0",
+  "sdkVersion": "9.0.0",
+  "packagerOpts": {
+    "assetExts": ["ttf", "mp4"]
+  }
+}
