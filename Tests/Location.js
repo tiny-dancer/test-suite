@@ -37,7 +37,7 @@ export function test(t) {
         } else {
           let error;
           try {
-            await Location.getCurrentPositionAsync();
+            await Location.getCurrentPositionAsync(options);
           } catch (e) {
             error = e;
           }
