@@ -196,10 +196,10 @@ class App extends React.Component {
                  borderLeftWidth: 3 }}>
         <Text style={{ fontSize: 18 }}>
           {{
-             running: '😮',
-             passed: '😄',
-             failed: '😞',
-           }[status]} {r.get('description')} ({status})
+             running: '😮 ',
+             passed: '😄 ',
+             failed: '😞 ',
+           }[status]}{r.get('description')} ({status})
         </Text>
         {
           r.get('failedExpectations').map((e, i) => (
