@@ -69,7 +69,7 @@ export function test(t) {
         'throws error if no permission (when trying again after 1 second)',
         async () => {
           await new Promise(resolve => setTimeout(resolve, 1000));
-          await testShapeOrUnauthorized({ enableHighAccuracy: false });
+          await testShapeOrUnauthorized({ enableHighAccuracy: false })();
         },
         11000,
       );
@@ -79,7 +79,7 @@ export function test(t) {
         'throws error if no permission (when trying again after 1 second)',
         async () => {
           await new Promise(resolve => setTimeout(resolve, 1000));
-          await testShapeOrUnauthorized({ enableHighAccuracy: true });
+          await testShapeOrUnauthorized({ enableHighAccuracy: true })();
         },
         11000,
       );
