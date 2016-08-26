@@ -44,6 +44,7 @@ export function test(t) {
           t.expect(error.message).toMatch(/Not authorized/);
         }
       };
+
       t.it(
         'gets a result of the correct shape (without high accuracy), or ' +
         'throws error if no permission',
@@ -58,9 +59,29 @@ export function test(t) {
       );
       t.it(
         'gets a result of the correct shape (with high accuracy), or ' +
-        'throws error if no permission',
-        testShapeOrUnauthorized({ enableHighAccuracy: false }),
+        'throws error if no permission (when trying again immediately)',
+        testShapeOrUnauthorized({ enableHighAccuracy: true }),
         10000,
+      );
+
+      t.it(
+        'gets a result of the correct shape (without high accuracy), or ' +
+        'throws error if no permission (when trying again after 1 second)',
+        async () => {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          await testShapeOrUnauthorized({ enableHighAccuracy: false });
+        },
+        11000,
+      );
+
+      t.it(
+        'gets a result of the correct shape (with high accuracy), or ' +
+        'throws error if no permission (when trying again after 1 second)',
+        async () => {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          await testShapeOrUnauthorized({ enableHighAccuracy: true });
+        },
+        11000,
       );
     });
   });
