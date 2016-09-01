@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "babel-preset-react-native-stage-0": "^1.0.1",
-    "exponent": "^9.0.3",
+    "exponent": "^9.0.6",
     "immutable": "^3.8.1",
     "jasmine-core": "^2.4.1",
     "react": "~15.2.1",
