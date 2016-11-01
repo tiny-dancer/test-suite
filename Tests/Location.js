@@ -49,19 +49,19 @@ export function test(t) {
         'gets a result of the correct shape (without high accuracy), or ' +
         'throws error if no permission',
         testShapeOrUnauthorized({ enableHighAccuracy: false }),
-        10000,
+        100000,
       );
       t.it(
         'gets a result of the correct shape (without high accuracy), or ' +
         'throws error if no permission (when trying again immediately)',
         testShapeOrUnauthorized({ enableHighAccuracy: false }),
-        10000,
+        100000,
       );
       t.it(
         'gets a result of the correct shape (with high accuracy), or ' +
         'throws error if no permission (when trying again immediately)',
         testShapeOrUnauthorized({ enableHighAccuracy: true }),
-        10000,
+        100000,
       );
 
       t.it(
@@ -71,7 +71,7 @@ export function test(t) {
           await new Promise(resolve => setTimeout(resolve, 1000));
           await testShapeOrUnauthorized({ enableHighAccuracy: false })();
         },
-        11000,
+        101000,
       );
 
       t.it(
@@ -81,7 +81,7 @@ export function test(t) {
           await new Promise(resolve => setTimeout(resolve, 1000));
           await testShapeOrUnauthorized({ enableHighAccuracy: true })();
         },
-        11000,
+        101000,
       );
     });
   });
