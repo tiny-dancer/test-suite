@@ -9,10 +9,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "exponent": "^10.0.0-rc1",
+    "exponent": "file:../../libraries/exponent-sdk",
     "immutable": "^3.8.1",
     "jasmine-core": "^2.4.1",
-    "react": "~15.2.1",
-    "react-native": "github:exponentjs/react-native#sdk-10"
+    "react": "^15.3.1",
+    "react-native": "github:exponentjs/react-native#sdk-11"
   }
 }
