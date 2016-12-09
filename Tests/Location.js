@@ -9,6 +9,17 @@ export const name = 'Location';
 export function test(t) {
   t.describe('Location', () => {
     t.describe('Location.getCurrentPositionAsync()', () => {
+      // Manual interaction:
+      //   1. Just try
+      //   2. iOS Settings --> General --> Reset --> Reset Location & Privacy,
+      //      try gain and "Allow"
+      //   3. Retry from experience restart.
+      //   4. Retry from app restart.
+      //   5. iOS Settings --> General --> Reset --> Reset Location & Privacy,
+      //      try gain and "Don't Allow"
+      //   6. Retry from experience restart.
+      //   7. Retry from app restart.
+
       const testShapeOrUnauthorized = (options) => async () => {
         const { status } = await Permissions.askAsync(
           Permissions.LOCATION);
@@ -45,23 +56,26 @@ export function test(t) {
         }
       };
 
+      const second = 1000;
+      const timeout = 20 * second; // Allow manual touch on permissions dialog
+
       t.it(
         'gets a result of the correct shape (without high accuracy), or ' +
         'throws error if no permission',
         testShapeOrUnauthorized({ enableHighAccuracy: false }),
-        100000,
+        timeout,
       );
       t.it(
         'gets a result of the correct shape (without high accuracy), or ' +
         'throws error if no permission (when trying again immediately)',
         testShapeOrUnauthorized({ enableHighAccuracy: false }),
-        100000,
+        timeout,
       );
       t.it(
         'gets a result of the correct shape (with high accuracy), or ' +
         'throws error if no permission (when trying again immediately)',
         testShapeOrUnauthorized({ enableHighAccuracy: true }),
-        100000,
+        timeout,
       );
 
       t.it(
@@ -71,7 +85,7 @@ export function test(t) {
           await new Promise(resolve => setTimeout(resolve, 1000));
           await testShapeOrUnauthorized({ enableHighAccuracy: false })();
         },
-        101000,
+        timeout + second,
       );
 
       t.it(
@@ -81,7 +95,7 @@ export function test(t) {
           await new Promise(resolve => setTimeout(resolve, 1000));
           await testShapeOrUnauthorized({ enableHighAccuracy: true })();
         },
-        101000,
+        timeout + second,
       );
     });
   });
