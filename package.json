@@ -1,7 +1,7 @@
 {
-  "name": "unit-test",
+  "name": "test-suite",
   "version": "1.0.0",
-  "description": "",
+  "description": "Test suite for the Exponent SDK",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -9,10 +9,10 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "exponent": "file:../../libraries/exponent-sdk",
+    "exponent": "^12.0.0-rc.5",
     "immutable": "^3.8.1",
     "jasmine-core": "^2.4.1",
-    "react": "^15.3.1",
-    "react-native": "github:exponentjs/react-native#sdk-11"
+    "react": "15.3.2",
+    "react-native": "git+https://github.com/exponentjs/react-native#sdk-12.0.0"
   }
 }
