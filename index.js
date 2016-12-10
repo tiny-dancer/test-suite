@@ -20,6 +20,9 @@ const testModules = [
   // require('./Tests/Basic1'),
   // require('./Tests/Basic2'),
 
+  require('./Tests/Import1'),
+  require('./Tests/Import2'),
+  require('./Tests/Import3'),
   require('./Tests/Asset'),
   require('./Tests/Constants'),
   require('./Tests/Contacts'),
