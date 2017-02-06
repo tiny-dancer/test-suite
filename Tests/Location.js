@@ -3,6 +3,7 @@
 import { Platform } from 'react-native';
 
 import { Location, Permissions } from 'exponent';
+import * as TestUtils from '../TestUtils';
 
 export const name = 'Location';
 
@@ -21,6 +22,7 @@ export function test(t) {
       //   7. Retry from app restart.
 
       const testShapeOrUnauthorized = (options) => async () => {
+        await TestUtils.acceptPermissionsAsync();
         const { status } = await Permissions.askAsync(
           Permissions.LOCATION);
         if (status === 'granted') {

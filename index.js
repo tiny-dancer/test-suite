@@ -5,6 +5,7 @@ import {
   AppRegistry,
   Image,
   Linking,
+  NativeModules,
   ScrollView,
   Text,
   View,
@@ -13,6 +14,9 @@ import * as Exponent from 'exponent';
 import jasmineModule from 'jasmine-core/lib/jasmine-core/jasmine';
 import Immutable from 'immutable';
 
+let {
+  ExponentTest,
+} = NativeModules;
 
 // List of all modules for tests. Each file path must be statically present for
 // the packager to pick them all up.
@@ -36,6 +40,7 @@ class App extends React.Component {
   constructor(props, context) {
     super(props, context);
     this.state = App.initialState;
+    this._results = '';
   }
 
   componentDidMount() {
@@ -117,9 +122,12 @@ class App extends React.Component {
           const emoji = result.status === 'passed' ?
                         ':green_heart:' : ':broken_heart:';
           console.log(`${grouping} ${emoji} ${result.fullName}`);
+          this._results += `${grouping} ${result.fullName}\n`;
+
           if (result.status === 'failed') {
             result.failedExpectations.forEach(({ matcherName, message }) => {
               console.log(`${matcherName}: ${message}`);
+              this._results += `${matcherName}: ${message}\n`;
             });
             failedSpecs.push(result);
           }
@@ -136,10 +144,16 @@ class App extends React.Component {
       jasmineDone() {
         console.log('--- tests done');
         console.log('--- send results to runner');
-        console.log(JSON.stringify({
+        let result = JSON.stringify({
           magic: '[TEST-SUITE-END]', // NOTE: Runner/Run.js waits to see this
           failed: failedSpecs.length,
-        }));
+          results: this._results,
+        });
+        console.log(result);
+
+        if (ExponentTest) {
+          ExponentTest.completed(result);
+        }
       },
     };
   }
@@ -277,7 +291,8 @@ class App extends React.Component {
         style={{ flex: 1,
                  marginTop: Exponent.Constants.statusBarHeight || 18,
                  alignItems: 'stretch',
-                 justifyContent: 'center' }}>
+                 justifyContent: 'center' }}
+        testID="test_suite_container">
         <View
           style={{ height: 30,
                    padding: 10,

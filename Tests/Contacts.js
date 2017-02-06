@@ -1,6 +1,7 @@
 'use strict';
 
 import { Contacts } from 'exponent';
+import * as TestUtils from '../TestUtils';
 
 export const name = 'Contacts';
 
@@ -8,8 +9,9 @@ export function test(t) {
   t.describe('Contacts', () => {
     t.describe('Contacts.getContactsAsync()', () => {
       t.it(
-        'gets at least one result, all results of right shape',
+        'gets permission and at least one result, all results of right shape',
         async () => {
+          await TestUtils.acceptPermissionsAsync();
           const contacts = await Contacts.getContactsAsync([
             Contacts.PHONE_NUMBER,
             Contacts.EMAIL,

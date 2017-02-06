@@ -5,7 +5,7 @@ import { Constants } from 'exponent';
 export const name = 'Constants';
 
 export function test(t) {
-  t.fdescribe('Constants', () => {
+  t.describe('Constants', () => {
     [
       'exponentVersion',
       'deviceId',
