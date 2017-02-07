@@ -4,15 +4,15 @@
   "description": "Test suite for the Exponent SDK",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "cd Runner && yarn && cd .. && node Runner/index.js ."
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "exponent": "^12.0.0-rc.5",
+    "exponent": "file:../../libraries/exponent-sdk",
     "immutable": "^3.8.1",
     "jasmine-core": "^2.4.1",
-    "react": "15.3.2",
-    "react-native": "git+https://github.com/exponentjs/react-native#sdk-12.0.0"
+    "react": "15.4.1",
+    "react-native": "git+https://github.com/exponentjs/react-native#exp-latest"
   }
 }

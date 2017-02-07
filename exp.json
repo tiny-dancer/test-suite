@@ -3,7 +3,7 @@
   "description": "Test suite for the Exponent SDK",
   "slug": "test-suite",
   "version": "1.0.0",
-  "sdkVersion": "12.0.0",
+  "sdkVersion": "UNVERSIONED",
   "packagerOpts": {
     "assetExts": ["ttf", "mp4"]
   }
