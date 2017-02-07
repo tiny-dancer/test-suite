@@ -77,8 +77,9 @@ class App extends React.Component {
     const jasmineCore = jasmineModule.core(jasmineModule);
     const jasmineEnv = jasmineCore.getEnv();
 
-    // Add our custom reporter too
-    jasmineEnv.addReporter(this._jasmineReporter());
+    // Add our custom reporters too
+    jasmineEnv.addReporter(this._jasmineSetStateReporter());
+    jasmineEnv.addReporter(this._jasmineConsoleReporter());
 
     // Get the interface and make it support `async ` by default
     const jasmine = jasmineModule.interface(jasmineCore, jasmineEnv);
@@ -104,8 +105,47 @@ class App extends React.Component {
     };
   }
 
+  // A jasmine reporter that writes results to the console
+  _jasmineConsoleReporter(jasmineEnv) {
+    const failedSpecs = [];
+
+    return {
+      specDone(result) {
+        if (result.status === 'passed' || result.status === 'failed') {
+          // Open log group if failed
+          const grouping = result.status === 'passed' ? '---' : '+++';
+          const emoji = result.status === 'passed' ?
+                        ':green_heart:' : ':broken_heart:';
+          console.log(`${grouping} ${emoji} ${result.fullName}`);
+          if (result.status === 'failed') {
+            result.failedExpectations.forEach(({ matcherName, message }) => {
+              console.log(`${matcherName}: ${message}`);
+            });
+            failedSpecs.push(result);
+          }
+        }
+      },
+
+      suiteDone(result) {
+      },
+
+      jasmineStarted() {
+        console.log('--- tests started');
+      },
+
+      jasmineDone() {
+        console.log('--- tests done');
+        console.log('--- send results to runner');
+        console.log(JSON.stringify({
+          magic: '[TEST-SUITE-END]', // NOTE: Runner/Run.js waits to see this
+          failed: failedSpecs.length,
+        }));
+      },
+    };
+  }
+
   // A jasmine reporter that writes results to this.state
-  _jasmineReporter(jasmineEnv) {
+  _jasmineSetStateReporter(jasmineEnv) {
     const app = this;
     return {
       suiteStarted(jasmineResult) {
