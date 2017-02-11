@@ -11,11 +11,12 @@ export function test(t) {
       t.it(
         'gets permission and at least one result, all results of right shape',
         async () => {
-          await TestUtils.acceptPermissionsAsync();
-          const contacts = await Contacts.getContactsAsync([
-            Contacts.PHONE_NUMBER,
-            Contacts.EMAIL,
-          ]);
+          let contacts = await TestUtils.acceptPermissionsAndRunCommandAsync(() => {
+            return Contacts.getContactsAsync([
+              Contacts.PHONE_NUMBER,
+              Contacts.EMAIL,
+            ]);
+          });
           t.expect(contacts.length > 0).toBe(true);
           contacts.forEach(({ id, name, phoneNumber, email}) => {
             t.expect(typeof id === 'number').toBe(true);

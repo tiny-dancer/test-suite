@@ -8,15 +8,21 @@ let {
   ExponentTest,
 } = NativeModules;
 
-export async function acceptPermissionsAsync() {
+export async function acceptPermissionsAndRunCommandAsync(fn) {
   if (!ExponentTest) {
-    return;
+    return await fn();
   }
 
-  await ExponentTest.action({
-    selectorType: 'text',
-    selectorValue: 'Allow',
-    actionType: 'click',
-    delay: 1000,
-  });
+  let results = await Promise.all([
+    ExponentTest.action({
+      selectorType: 'text',
+      selectorValue: 'Allow',
+      actionType: 'click',
+      delay: 1000,
+      timeout: 100,
+    }),
+    fn(),
+  ]);
+
+  return results[1];
 }

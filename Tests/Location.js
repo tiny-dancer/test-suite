@@ -22,9 +22,9 @@ export function test(t) {
       //   7. Retry from app restart.
 
       const testShapeOrUnauthorized = (options) => async () => {
-        await TestUtils.acceptPermissionsAsync();
-        const { status } = await Permissions.askAsync(
-          Permissions.LOCATION);
+        const { status } = await TestUtils.acceptPermissionsAndRunCommandAsync(() => {
+          return Permissions.askAsync(Permissions.LOCATION);
+        });
         if (status === 'granted') {
           const {
             coords: {

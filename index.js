@@ -41,6 +41,7 @@ class App extends React.Component {
     super(props, context);
     this.state = App.initialState;
     this._results = '';
+    this._scrollViewRef = null;
   }
 
   componentDidMount() {
@@ -285,6 +286,12 @@ class App extends React.Component {
     );
   }
 
+  _onScrollViewContentSizeChange = (contentWidth, contentHeight) => {
+    if (this._scrollViewRef) {
+      this._scrollViewRef.scrollTo({y: contentHeight});
+    }
+  }
+
   render() {
     return (
       <View
@@ -304,7 +311,10 @@ class App extends React.Component {
             style={{ width: 29, height: 24 }}
           />
         </View>
-        <ScrollView style={{ flex: 1, margin: 5 }}>
+        <ScrollView
+          style={{ flex: 1, margin: 5 }}
+          ref={(ref) => this._scrollViewRef = ref}
+          onContentSizeChange={this._onScrollViewContentSizeChange}>
           {this.state.state.get('suites').map(this._renderSuiteResult)}
         </ScrollView>
       </View>

@@ -1,7 +1,3 @@
-/*
- * Config for this on CI
- */
-
 import {
   Constants,
   Log,
@@ -32,12 +28,9 @@ export default {
 
 const publishTestSuite = (branch, tag) => ({
   name: 'Publish Test Suite',
-  agents: {
-    queue: 'ubuntu',
-  },
   async command() {
     await spawnAsync('sysctl', ['-p']);
-    // :|
+    // TODO: remove once CI machines don't have watchman
     try {
       await spawnAsync('mv', ['/usr/local/bin/watchman', '/usr/local/bin/watchman2']);
     } catch (e) {}
