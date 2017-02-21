@@ -80,6 +80,7 @@ class App extends React.Component {
 
   async _setupJasmine() {
     // Init
+    jasmineModule.DEFAULT_TIMEOUT_INTERVAL = 10000;
     const jasmineCore = jasmineModule.core(jasmineModule);
     const jasmineEnv = jasmineCore.getEnv();
 
