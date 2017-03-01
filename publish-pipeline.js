@@ -1,8 +1,4 @@
-import {
-  Constants,
-  Log,
-  XDL,
-} from 'ci';
+import { Constants, Log, XDL } from 'ci';
 
 import JsonFile from '@exponent/json-file';
 import spawnAsync from '@exponent/spawn-async';
@@ -17,13 +13,10 @@ export default {
     shortname: 'publish-test-suite',
     description: 'Publishes Test Suite',
     allowPRs: true,
-    regions: [
-      'apps/test-suite/**',
-    ],
+    branches: 'master',
+    regions: ['apps/test-suite/**'],
   },
-  steps: (branch, tag) => ([
-    publishTestSuite(branch, tag),
-  ]),
+  steps: (branch, tag) => [publishTestSuite(branch, tag)],
 };
 
 const publishTestSuite = (branch, tag) => ({
@@ -49,10 +42,7 @@ const publishTestSuite = (branch, tag) => ({
       stdio: 'inherit',
       cwd: testSuitePath,
     });
-    await spawnAsync('npm', [
-      'install', '--save',
-      `file://${path.join(universePath, 'libraries', 'exponent-sdk')}`,
-    ], {
+    await spawnAsync('npm', ['install', '--save', `file://${path.join(universePath, 'libraries', 'exponent-sdk')}`], {
       stdio: 'inherit',
       cwd: testSuitePath,
     });
