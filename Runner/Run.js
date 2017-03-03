@@ -47,7 +47,7 @@ export async function ios(Log, {
 
   Log.collapsed('get url');
   const settings = await ProjectSettings.readPackagerInfoAsync(testSuitePath);
-  const url = `exp://localhost:${settings.exponentServerPort}`;
+  const url = `exp://localhost:${settings.expoServerPort}`;
   console.log(`Url is ${url}`);
 
   Log.collapsed('sanity check manifest');
