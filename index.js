@@ -10,7 +10,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import * as Exponent from 'exponent';
+import * as Expo from 'expo';
 import jasmineModule from 'jasmine-core/lib/jasmine-core/jasmine';
 import Immutable from 'immutable';
 
@@ -67,8 +67,8 @@ class App extends React.Component {
 
     // Load tests, confining to the ones named in the uri
     let modules = testModules;
-    if (uri && uri.indexOf(Exponent.Constants.linkingUri) === 0) {
-      const deepLink = uri.substring(Exponent.Constants.linkingUri.length);
+    if (uri && uri.indexOf(Expo.Constants.linkingUri) === 0) {
+      const deepLink = uri.substring(Expo.Constants.linkingUri.length);
       const regex = new RegExp(deepLink);
       console.log('regex:', deepLink);
       modules = modules.filter(m => regex.test(m.name));
@@ -297,7 +297,7 @@ class App extends React.Component {
     return (
       <View
         style={{ flex: 1,
-                 marginTop: Exponent.Constants.statusBarHeight || 18,
+                 marginTop: Expo.Constants.statusBarHeight || 18,
                  alignItems: 'stretch',
                  justifyContent: 'center' }}
         testID="test_suite_container">

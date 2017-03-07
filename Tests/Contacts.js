@@ -1,6 +1,6 @@
 'use strict';
 
-import { Contacts } from 'exponent';
+import { Contacts } from 'expo';
 import * as TestUtils from '../TestUtils';
 
 export const name = 'Contacts';

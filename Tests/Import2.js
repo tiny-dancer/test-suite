@@ -1,17 +1,17 @@
 'use strict';
 
-import Exponent from 'exponent';
+import Expo from 'expo';
 
 export const name = 'Import1';
 
 export function test(t) {
-  t.describe(`import Exponent from 'exponent';`, () => {
-    t.it(`const { Constants } = Exponent;`, () => {
-      const { Constants } = Exponent;
-      t.expect(Constants.exponentVersion).toBeDefined();
+  t.describe(`import Expo from 'expo';`, () => {
+    t.it(`const { Constants } = Expo;`, () => {
+      const { Constants } = Expo;
+      t.expect(Constants.expoVersion).toBeDefined();
     });
-    t.it(`Exponent.Constants`, () => {
-      t.expect(Exponent.Constants.exponentVersion).toBeDefined();
+    t.it(`Expo.Constants`, () => {
+      t.expect(Expo.Constants.expoVersion).toBeDefined();
     });
   });
 }

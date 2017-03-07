@@ -2,7 +2,7 @@
 
 import { NativeModules } from 'react-native';
 
-import { Asset } from 'exponent';
+import { Asset } from 'expo';
 
 export const name = 'Asset';
 

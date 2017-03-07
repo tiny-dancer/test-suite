@@ -1,13 +1,13 @@
 'use strict';
 
-import { Constants } from 'exponent';
+import { Constants } from 'expo';
 
 export const name = 'Constants';
 
 export function test(t) {
   t.describe('Constants', () => {
     [
-      'exponentVersion',
+      'expoVersion',
       'deviceId',
       'deviceName',
       'deviceYearClass',

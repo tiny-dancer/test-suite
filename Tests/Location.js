@@ -2,7 +2,7 @@
 
 import { Platform } from 'react-native';
 
-import { Location, Permissions } from 'exponent';
+import { Location, Permissions } from 'expo';
 import * as TestUtils from '../TestUtils';
 
 export const name = 'Location';
