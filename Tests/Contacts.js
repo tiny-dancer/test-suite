@@ -1,6 +1,6 @@
 'use strict';
 
-import { Contacts } from 'expo';
+import { Contacts, Permissions } from 'expo';
 import * as TestUtils from '../TestUtils';
 
 export const name = 'Contacts';
@@ -11,12 +11,14 @@ export function test(t) {
       t.it(
         'gets permission and at least one result, all results of right shape',
         async () => {
-          let contacts = await TestUtils.acceptPermissionsAndRunCommandAsync(() => {
-            return Contacts.getContactsAsync([
-              Contacts.PHONE_NUMBER,
-              Contacts.EMAIL,
-            ]);
+          await TestUtils.acceptPermissionsAndRunCommandAsync(() => {
+            return Permissions.askAsync(Permissions.CONTACTS);
           });
+
+          let contacts = Contacts.getContactsAsync([
+            Contacts.PHONE_NUMBER,
+            Contacts.EMAIL,
+          ]);
           t.expect(contacts.length > 0).toBe(true);
           contacts.forEach(({ id, name, phoneNumber, email}) => {
             t.expect(typeof id === 'number').toBe(true);
