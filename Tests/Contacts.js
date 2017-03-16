@@ -15,7 +15,7 @@ export function test(t) {
             return Permissions.askAsync(Permissions.CONTACTS);
           });
 
-          let contacts = Contacts.getContactsAsync([
+          let contacts = await Contacts.getContactsAsync([
             Contacts.PHONE_NUMBER,
             Contacts.EMAIL,
           ]);
