@@ -31,6 +31,7 @@ const testModules = [
   require('./Tests/Constants'),
   require('./Tests/Contacts'),
   require('./Tests/Location'),
+  require('./Tests/SQLite'),
 ];
 
 
