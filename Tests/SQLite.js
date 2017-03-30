@@ -8,7 +8,7 @@ export const name = 'SQLite';
 
 // TODO: Only tests successful cases, needs to test error cases like bad database name etc.
 export function test(t) {
-  t.fdescribe('SQLite', () => {
+  t.xdescribe('SQLite', () => {
     t.it(
       'should be able to drop + create a table, insert, query',
       async () => {
