@@ -15,12 +15,15 @@ export function test(t) {
             return Permissions.askAsync(Permissions.CONTACTS);
           });
 
-          let contacts = await Contacts.getContactsAsync([
-            Contacts.PHONE_NUMBER,
-            Contacts.EMAIL,
-          ]);
-          t.expect(contacts.length > 0).toBe(true);
-          contacts.forEach(({ id, name, phoneNumber, email}) => {
+          let contacts = await Contacts.getContactsAsync({
+            fields: [
+              Contacts.PHONE_NUMBER,
+              Contacts.EMAIL,
+            ],
+          });
+          t.expect(contacts.total > 0).toBe(true);
+          t.expect(contacts.data.length > 0).toBe(true);
+          contacts.data.forEach(({ id, name, phoneNumber, email}) => {
             t.expect(typeof id === 'number').toBe(true);
             t.expect(typeof name === 'string' ||
                      typeof name === 'undefined').toBe(true);
@@ -35,11 +38,14 @@ export function test(t) {
       t.it(
         'skips phone number if not asked',
         async () => {
-          const contacts = await Contacts.getContactsAsync([
-            Contacts.EMAIL,
-          ]);
-          t.expect(contacts.length > 0).toBe(true);
-          contacts.forEach(({ id, name, phoneNumber, email}) => {
+          const contacts = await Contacts.getContactsAsync({
+            fields: [
+              Contacts.EMAIL,
+            ],
+          });
+          t.expect(contacts.total > 0).toBe(true);
+          t.expect(contacts.data.length > 0).toBe(true);
+          contacts.data.forEach(({ id, name, phoneNumber, email}) => {
             t.expect(typeof phoneNumber === 'undefined').toBe(true);
           });
         },
@@ -48,13 +54,55 @@ export function test(t) {
       t.it(
         'skips email if not asked',
         async () => {
-          const contacts = await Contacts.getContactsAsync([
-            Contacts.PHONE_NUMBER,
-          ]);
-          t.expect(contacts.length > 0).toBe(true);
-          contacts.forEach(({ id, name, phoneNumber, email}) => {
+          const contacts = await Contacts.getContactsAsync({
+            fields: [
+              Contacts.PHONE_NUMBER,
+            ],
+          });
+          t.expect(contacts.total > 0).toBe(true);
+          t.expect(contacts.data.length > 0).toBe(true);
+          contacts.data.forEach(({ id, name, phoneNumber, email}) => {
             t.expect(typeof email === 'undefined').toBe(true);
           });
+        },
+      );
+
+      t.it(
+        'respects the page size',
+        async () => {
+          const contacts = await Contacts.getContactsAsync({
+            fields: [
+              Contacts.PHONE_NUMBER,
+            ],
+            pageOffset: 0,
+            pageSize: 2,
+          });
+          t.expect(contacts.data.length).toBe(2);
+        },
+      );
+
+      t.it(
+        'respects the page offset',
+        async () => {
+          const firstPage = await Contacts.getContactsAsync({
+            fields: [
+              Contacts.PHONE_NUMBER,
+            ],
+            pageOffset: 0,
+            pageSize: 2,
+          });
+          const secondPage = await Contacts.getContactsAsync({
+            fields: [
+              Contacts.PHONE_NUMBER,
+            ],
+            pageOffset: 1,
+            pageSize: 2,
+          });
+          t.expect(firstPage.data.length).toBe(2);
+          t.expect(secondPage.data.length).toBe(2);
+          t.expect(firstPage.data[0].id).not.toBe(secondPage.data[0].id);
+          t.expect(firstPage.data[1].id).not.toBe(secondPage.data[1].id);
+          t.expect(firstPage.data[1].id).toBe(secondPage.data[0].id);
         },
       );
     });
