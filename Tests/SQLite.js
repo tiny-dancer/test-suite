@@ -8,7 +8,7 @@ export const name = 'SQLite';
 
 // TODO: Only tests successful cases, needs to test error cases like bad database name etc.
 export function test(t) {
-  t.xdescribe('SQLite', () => {
+  t.describe('SQLite', () => {
     t.it(
       'should be able to drop + create a table, insert, query',
       async () => {
@@ -30,26 +30,8 @@ export function test(t) {
                           [], nop, onError);
 
             tx.executeSql('SELECT * FROM Users', [], (tx, results) => {
-              t.expect(results.rows._array).toEqual([
-                {
-                  "user_id": 1,
-                  "name": "Tim Duncan",
-                  "k": 1,
-                  "j": 23.4,
-                },
-                {
-                  "user_id": 2,
-                  "name": "Manu Ginobili",
-                  "k": 5,
-                  "j": 72.8,
-                },
-                {
-                  "user_id": 3,
-                  "name": "Nikhilesh Sigatapu",
-                  "k": 7,
-                  "j": 42.14,
-                },
-              ]);
+              t.expect(results.rows.length).toEqual(3);
+              t.expect(results.rows._array[0].j).toBeCloseTo(23.4);
               resolve();
             }, onError);
           });
