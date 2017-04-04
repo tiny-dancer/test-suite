@@ -13,6 +13,6 @@
     "immutable": "^3.8.1",
     "jasmine-core": "^2.4.1",
     "react": "15.4.1",
-    "react-native": "git+https://github.com/exponentjs/react-native#sdk-15"
+    "react-native": "https://github.com/exponent/react-native#exp-latest"
   }
 }
