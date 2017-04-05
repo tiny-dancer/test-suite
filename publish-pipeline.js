@@ -23,10 +23,6 @@ const publishTestSuite = (branch, tag) => ({
   name: 'Publish Test Suite',
   async command() {
     await spawnAsync('sysctl', ['-p']);
-    // TODO: remove once CI machines don't have watchman
-    try {
-      await spawnAsync('mv', ['/usr/local/bin/watchman', '/usr/local/bin/watchman2']);
-    } catch (e) {}
 
     // Use `npm` because `yarn` is being weird about using the latest
     // local `exponent-sdk` package
@@ -42,10 +38,18 @@ const publishTestSuite = (branch, tag) => ({
       stdio: 'inherit',
       cwd: testSuitePath,
     });
-    await spawnAsync('npm', ['install', '--save', `file://${path.join(universePath, 'libraries', 'exponent-sdk')}`], {
-      stdio: 'inherit',
-      cwd: testSuitePath,
-    });
+    await spawnAsync(
+      'npm',
+      [
+        'install',
+        '--save',
+        `file://${path.join(universePath, 'libraries', 'exponent-sdk')}`,
+      ],
+      {
+        stdio: 'inherit',
+        cwd: testSuitePath,
+      }
+    );
 
     Log.collapsed('Modifying slug...');
     let expJsonFile = new JsonFile(path.join(testSuitePath, 'exp.json'));
