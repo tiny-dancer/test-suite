@@ -20,6 +20,9 @@ export default {
 
 const publishTestSuite = (branch, tag) => ({
   name: 'Publish Test Suite',
+  agents: {
+    queue: 'builder',
+  },
   async command() {
     await exec('sysctl', ['-p']);
 
