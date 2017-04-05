@@ -26,7 +26,7 @@ const publishTestSuite = (branch, tag) => ({
 
     // Run yarn install -- it leverages install-universe-deps
     // as a preinstall script, so local expo-sdk is linked in
-    Log.collapsed('Running `npm install` in test-suite...');
+    Log.collapsed('Running `yarn install` in test-suite...');
     await spawnAsync('yarn', ['install'], {
       stdio: 'inherit',
       cwd: testSuitePath,
