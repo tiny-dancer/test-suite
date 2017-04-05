@@ -4,6 +4,7 @@
   "description": "Test suite for the Exponent SDK",
   "main": "index.js",
   "scripts": {
+    "preinstall": "install-universe-deps .",
     "test": "cd Runner && yarn && cd .. && node Runner/index.js ."
   },
   "author": "",

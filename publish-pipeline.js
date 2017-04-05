@@ -24,32 +24,13 @@ const publishTestSuite = (branch, tag) => ({
   async command() {
     await spawnAsync('sysctl', ['-p']);
 
-    // Use `npm` because `yarn` is being weird about using the latest
-    // local `exponent-sdk` package
+    // Run yarn install -- it leverages install-universe-deps
+    // as a preinstall script, so local expo-sdk is linked in
     Log.collapsed('Running `npm install` in test-suite...');
-    await spawnAsync('npm', ['install'], {
+    await spawnAsync('yarn', ['install'], {
       stdio: 'inherit',
       cwd: testSuitePath,
     });
-
-    // Install exponent-sdk from its code in the same commit.
-    Log.collapsed('Installing exponent-sdk in test-suite...');
-    await spawnAsync('npm', ['remove', '--save', 'exponent'], {
-      stdio: 'inherit',
-      cwd: testSuitePath,
-    });
-    await spawnAsync(
-      'npm',
-      [
-        'install',
-        '--save',
-        `file://${path.join(universePath, 'libraries', 'exponent-sdk')}`,
-      ],
-      {
-        stdio: 'inherit',
-        cwd: testSuitePath,
-      }
-    );
 
     Log.collapsed('Modifying slug...');
     let expJsonFile = new JsonFile(path.join(testSuitePath, 'exp.json'));
