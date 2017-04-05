@@ -1,7 +1,6 @@
-import { Constants, Log, XDL } from 'ci';
+import { Constants, Log, XDL, Universe, exec } from 'ci';
 
 import JsonFile from '@exponent/json-file';
-import spawnAsync from '@exponent/spawn-async';
 import path from 'path';
 
 const universePath = Constants.CODE_UNIVERSE_DIR;
@@ -22,13 +21,15 @@ export default {
 const publishTestSuite = (branch, tag) => ({
   name: 'Publish Test Suite',
   async command() {
-    await spawnAsync('sysctl', ['-p']);
+    await exec('sysctl', ['-p']);
+
+    // Install universe tools
+    await Universe.installUniverseTools();
 
     // Run yarn install -- it leverages install-universe-deps
     // as a preinstall script, so local expo-sdk is linked in
     Log.collapsed('Running `yarn install` in test-suite...');
-    await spawnAsync('yarn', ['install'], {
-      stdio: 'inherit',
+    await exec('yarn', ['install'], {
       cwd: testSuitePath,
     });
 
