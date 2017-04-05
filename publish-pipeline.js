@@ -1,6 +1,7 @@
-import { Constants, Log, XDL, Universe, exec } from 'ci';
+import { Constants, Log, XDL } from 'ci';
 
 import JsonFile from '@exponent/json-file';
+import spawnAsync from '@exponent/spawn-async';
 import path from 'path';
 
 const universePath = Constants.CODE_UNIVERSE_DIR;
@@ -20,21 +21,35 @@ export default {
 
 const publishTestSuite = (branch, tag) => ({
   name: 'Publish Test Suite',
-  agents: {
-    queue: 'builder',
-  },
   async command() {
-    await exec('sysctl', ['-p']);
+    await spawnAsync('sysctl', ['-p']);
 
-    // Install universe tools
-    await Universe.installUniverseTools();
-
-    // Run yarn install -- it leverages install-universe-deps
-    // as a preinstall script, so local expo-sdk is linked in
-    Log.collapsed('Running `yarn install` in test-suite...');
-    await exec('yarn', ['install'], {
+    // Use `npm` because `yarn` is being weird about using the latest
+    // local `exponent-sdk` package
+    Log.collapsed('Running `npm install` in test-suite...');
+    await spawnAsync('npm', ['install'], {
+      stdio: 'inherit',
       cwd: testSuitePath,
     });
+
+    // Install exponent-sdk from its code in the same commit.
+    Log.collapsed('Installing exponent-sdk in test-suite...');
+    await spawnAsync('npm', ['remove', '--save', 'exponent'], {
+      stdio: 'inherit',
+      cwd: testSuitePath,
+    });
+    await spawnAsync(
+      'npm',
+      [
+        'install',
+        '--save',
+        `file://${path.join(universePath, 'libraries', 'exponent-sdk')}`,
+      ],
+      {
+        stdio: 'inherit',
+        cwd: testSuitePath,
+      }
+    );
 
     Log.collapsed('Modifying slug...');
     let expJsonFile = new JsonFile(path.join(testSuitePath, 'exp.json'));
