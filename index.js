@@ -14,9 +14,7 @@ import * as Expo from 'expo';
 import jasmineModule from 'jasmine-core/lib/jasmine-core/jasmine';
 import Immutable from 'immutable';
 
-let {
-  ExponentTest,
-} = NativeModules;
+let { ExponentTest } = NativeModules;
 
 // List of all modules for tests. Each file path must be statically present for
 // the packager to pick them all up.
@@ -34,7 +32,6 @@ const testModules = [
   require('./Tests/SQLite'),
 ];
 
-
 class App extends React.Component {
   // --- Lifecycle -------------------------------------------------------------
 
@@ -50,7 +47,6 @@ class App extends React.Component {
     Linking.addEventListener('url', ({ url }) => url && this._runTests(url));
   }
 
-
   // --- Test running ----------------------------------------------------------
 
   static initialState = {
@@ -58,7 +54,7 @@ class App extends React.Component {
       suites: [],
       path: ['suites'], // Path to current 'children' List in state
     }),
-  }
+  };
 
   async _runTests(uri) {
     // Reset results state
@@ -91,7 +87,7 @@ class App extends React.Component {
 
     // Get the interface and make it support `async ` by default
     const jasmine = jasmineModule.interface(jasmineCore, jasmineEnv);
-    const doneIfy = (fn) => async (done) => {
+    const doneIfy = fn => async done => {
       try {
         await Promise.resolve(fn());
         done();
@@ -102,9 +98,11 @@ class App extends React.Component {
     const oldIt = jasmine.it;
     jasmine.it = (desc, fn, t) => oldIt.apply(jasmine, [desc, doneIfy(fn), t]);
     const oldXit = jasmine.xit;
-    jasmine.xit = (desc, fn, t) => oldXit.apply(jasmine, [desc, doneIfy(fn), t]);
+    jasmine.xit = (desc, fn, t) =>
+      oldXit.apply(jasmine, [desc, doneIfy(fn), t]);
     const oldFit = jasmine.fit;
-    jasmine.fit = (desc, fn, t) => oldFit.apply(jasmine, [desc, doneIfy(fn), t]);
+    jasmine.fit = (desc, fn, t) =>
+      oldFit.apply(jasmine, [desc, doneIfy(fn), t]);
 
     return {
       jasmineCore,
@@ -122,8 +120,9 @@ class App extends React.Component {
         if (result.status === 'passed' || result.status === 'failed') {
           // Open log group if failed
           const grouping = result.status === 'passed' ? '---' : '+++';
-          const emoji = result.status === 'passed' ?
-                        ':green_heart:' : ':broken_heart:';
+          const emoji = result.status === 'passed'
+            ? ':green_heart:'
+            : ':broken_heart:';
           console.log(`${grouping} ${emoji} ${result.fullName}`);
           this._results += `${grouping} ${result.fullName}\n`;
 
@@ -137,8 +136,7 @@ class App extends React.Component {
         }
       },
 
-      suiteDone(result) {
-      },
+      suiteDone(result) {},
 
       jasmineStarted() {
         console.log('--- tests started');
@@ -167,118 +165,105 @@ class App extends React.Component {
     return {
       suiteStarted(jasmineResult) {
         app.setState(({ state }) => ({
-          state: state.updateIn(
-            state.get('path'),
-            children => children.push(Immutable.fromJS({
-              result: jasmineResult,
-              children: [],
-              specs: [],
-            })),
-          ).update(
-            'path',
-            path => path.push(
-              state.getIn(path).size,
-              'children',
+          state: state
+            .updateIn(state.get('path'), children =>
+              children.push(
+                Immutable.fromJS({
+                  result: jasmineResult,
+                  children: [],
+                  specs: [],
+                })
+              )
+            )
+            .update('path', path =>
+              path.push(state.getIn(path).size, 'children')
             ),
-          ),
         }));
       },
 
       suiteDone(jasmineResult) {
         app.setState(({ state }) => ({
-          state: state.updateIn(
-            state.get('path').pop().pop(),
-            children => children.update(
-              children.size - 1,
-              child => child.set(
-                'result',
-                child.get('result'),
-              ),
-            ),
-          ).update(
-            'path',
-            path => path.pop().pop(),
-          ),
+          state: state
+            .updateIn(state.get('path').pop().pop(), children =>
+              children.update(children.size - 1, child =>
+                child.set('result', child.get('result'))
+              )
+            )
+            .update('path', path => path.pop().pop()),
         }));
       },
 
       specStarted(jasmineResult) {
         app.setState(({ state }) => ({
-          state: state.updateIn(
-            state.get('path').pop().pop(),
-            children => children.update(
-              children.size - 1,
-              child => child.update(
-                'specs',
-                specs => specs.push(Immutable.fromJS(jasmineResult)),
-              ),
-            ),
+          state: state.updateIn(state.get('path').pop().pop(), children =>
+            children.update(children.size - 1, child =>
+              child.update('specs', specs =>
+                specs.push(Immutable.fromJS(jasmineResult))
+              )
+            )
           ),
         }));
       },
 
       specDone(jasmineResult) {
         app.setState(({ state }) => ({
-          state: state.updateIn(
-            state.get('path').pop().pop(),
-            children => children.update(
-              children.size - 1,
-              child => child.update(
-                'specs',
-                specs => specs.set(
-                  specs.size - 1,
-                  Immutable.fromJS(jasmineResult),
-                ),
-              ),
-            ),
+          state: state.updateIn(state.get('path').pop().pop(), children =>
+            children.update(children.size - 1, child =>
+              child.update('specs', specs =>
+                specs.set(specs.size - 1, Immutable.fromJS(jasmineResult))
+              )
+            )
           ),
         }));
       },
     };
   }
 
-
   // --- Rendering -------------------------------------------------------------
 
-  _renderSpecResult = (r) => {
+  _renderSpecResult = r => {
     const status = r.get('status') || 'running';
     return (
       <View
         key={r.get('id')}
-        style={{ paddingLeft: 10,
-                 marginVertical: 3,
-                 borderColor: {
-                   running: '#ff0',
-                   passed: '#0f0',
-                   failed: '#f00',
-                   disabled: '#888',
-                 }[status],
-                 borderLeftWidth: 3 }}>
+        style={{
+          paddingLeft: 10,
+          marginVertical: 3,
+          borderColor: {
+            running: '#ff0',
+            passed: '#0f0',
+            failed: '#f00',
+            disabled: '#888',
+          }[status],
+          borderLeftWidth: 3,
+        }}>
         <Text style={{ fontSize: 18 }}>
-          {{
-             running: '😮 ',
-             passed: '😄 ',
-             failed: '😞 ',
-           }[status]}{r.get('description')} ({status})
+          {
+            {
+              running: '😮 ',
+              passed: '😄 ',
+              failed: '😞 ',
+            }[status]
+          }{r.get('description')} ({status})
         </Text>
-        {
-          r.get('failedExpectations').map((e, i) => (
-            <Text key={i}>
-              {e.get('message')}
-            </Text>
-          ))
-        }
+        {r.get('failedExpectations').map((e, i) => (
+          <Text key={i}>
+            {e.get('message')}
+          </Text>
+        ))}
       </View>
     );
-  }
+  };
 
-  _renderSuiteResult = (r) => {
+  _renderSuiteResult = r => {
     return (
       <View
         key={r.get('result').get('id')}
-        style={{ paddingLeft: 10,
-                 borderColor: '#000',
-                 borderLeftWidth: 3 }}>
+        style={{
+          paddingLeft: 10,
+          borderColor: '#000',
+          borderLeftWidth: 3,
+        }}>
         <Text style={{ fontSize: 20 }}>
           {r.get('result').get('description')}
         </Text>
@@ -286,28 +271,32 @@ class App extends React.Component {
         {r.get('children').map(this._renderSuiteResult)}
       </View>
     );
-  }
+  };
 
   _onScrollViewContentSizeChange = (contentWidth, contentHeight) => {
     if (this._scrollViewRef) {
-      this._scrollViewRef.scrollTo({y: contentHeight});
+      this._scrollViewRef.scrollTo({ y: contentHeight });
     }
-  }
+  };
 
   render() {
     return (
       <View
-        style={{ flex: 1,
-                 marginTop: Expo.Constants.statusBarHeight || 18,
-                 alignItems: 'stretch',
-                 justifyContent: 'center' }}
+        style={{
+          flex: 1,
+          marginTop: Expo.Constants.statusBarHeight || 18,
+          alignItems: 'stretch',
+          justifyContent: 'center',
+        }}
         testID="test_suite_container">
         <View
-          style={{ height: 30,
-                   padding: 10,
-                   flexDirection: 'row',
-                   alignItems: 'center',
-                   justifyContent: 'flex-start' }}>
+          style={{
+            height: 30,
+            padding: 10,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+          }}>
           <Image
             source={require('./Assets/exponent-icon.png')}
             style={{ width: 29, height: 24 }}
@@ -315,7 +304,7 @@ class App extends React.Component {
         </View>
         <ScrollView
           style={{ flex: 1, margin: 5 }}
-          ref={(ref) => this._scrollViewRef = ref}
+          ref={ref => this._scrollViewRef = ref}
           onContentSizeChange={this._onScrollViewContentSizeChange}>
           {this.state.state.get('suites').map(this._renderSuiteResult)}
         </ScrollView>

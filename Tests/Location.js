@@ -21,8 +21,10 @@ export function test(t) {
       //   6. Retry from experience restart.
       //   7. Retry from app restart.
 
-      const testShapeOrUnauthorized = (options) => async () => {
-        const { status } = await TestUtils.acceptPermissionsAndRunCommandAsync(() => {
+      const testShapeOrUnauthorized = options => async () => {
+        const {
+          status,
+        } = await TestUtils.acceptPermissionsAndRunCommandAsync(() => {
           return Permissions.askAsync(Permissions.LOCATION);
         });
         if (status === 'granted') {
@@ -42,8 +44,11 @@ export function test(t) {
           t.expect(typeof longitude === 'number').toBe(true);
           t.expect(typeof altitude === 'number').toBe(true);
           t.expect(typeof accuracy === 'number').toBe(true);
-          t.expect(Platform.OS !== 'ios' ||
-                   typeof altitudeAccuracy === 'number').toBe(true);
+          t
+            .expect(
+              Platform.OS !== 'ios' || typeof altitudeAccuracy === 'number'
+            )
+            .toBe(true);
           t.expect(typeof heading === 'number').toBe(true);
           t.expect(typeof speed === 'number').toBe(true);
           t.expect(typeof timestamp === 'number').toBe(true);
@@ -63,41 +68,41 @@ export function test(t) {
 
       t.it(
         'gets a result of the correct shape (without high accuracy), or ' +
-        'throws error if no permission',
+          'throws error if no permission',
         testShapeOrUnauthorized({ enableHighAccuracy: false }),
-        timeout,
+        timeout
       );
       t.it(
         'gets a result of the correct shape (without high accuracy), or ' +
-        'throws error if no permission (when trying again immediately)',
+          'throws error if no permission (when trying again immediately)',
         testShapeOrUnauthorized({ enableHighAccuracy: false }),
-        timeout,
+        timeout
       );
       t.it(
         'gets a result of the correct shape (with high accuracy), or ' +
-        'throws error if no permission (when trying again immediately)',
+          'throws error if no permission (when trying again immediately)',
         testShapeOrUnauthorized({ enableHighAccuracy: true }),
-        timeout,
+        timeout
       );
 
       t.it(
         'gets a result of the correct shape (without high accuracy), or ' +
-        'throws error if no permission (when trying again after 1 second)',
+          'throws error if no permission (when trying again after 1 second)',
         async () => {
           await new Promise(resolve => setTimeout(resolve, 1000));
           await testShapeOrUnauthorized({ enableHighAccuracy: false })();
         },
-        timeout + second,
+        timeout + second
       );
 
       t.it(
         'gets a result of the correct shape (with high accuracy), or ' +
-        'throws error if no permission (when trying again after 1 second)',
+          'throws error if no permission (when trying again after 1 second)',
         async () => {
           await new Promise(resolve => setTimeout(resolve, 1000));
           await testShapeOrUnauthorized({ enableHighAccuracy: true })();
         },
-        timeout + second,
+        timeout + second
       );
     });
   });

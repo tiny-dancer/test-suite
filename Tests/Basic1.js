@@ -14,4 +14,4 @@ export function test(t) {
       t.expect(true).toBe(false);
     });
   });
-};
+}

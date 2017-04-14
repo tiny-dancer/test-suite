@@ -13,10 +13,7 @@ const XDL_LOGIN_USERPASS = {
   password: 'imabot2017',
 };
 
-export async function ios(Log, {
-  root,
-  ['ios-sim-app-url']: iosSimAppUrl,
-}) {
+export async function ios(Log, { root, ['ios-sim-app-url']: iosSimAppUrl }) {
   const testSuitePath = path.resolve(root || '.');
 
   Log.collapsed('log in as exponent_ci_bot');
@@ -27,14 +24,14 @@ export async function ios(Log, {
   ProjectUtils.attachLoggerStream(testSuitePath, {
     type: 'raw',
     stream: {
-      write: (chunk) => console.log(chunk.msg.replace(/\n$/, '')),
+      write: chunk => console.log(chunk.msg.replace(/\n$/, '')),
     },
   });
-  const packagerStarted = new Promise((resolve) => {
+  const packagerStarted = new Promise(resolve => {
     ProjectUtils.attachLoggerStream(testSuitePath, {
       type: 'raw',
       stream: {
-        write: (chunk) => {
+        write: chunk => {
           if (chunk.msg.indexOf('<END>   Initializing Packager') >= 0) {
             resolve();
           }
@@ -51,7 +48,9 @@ export async function ios(Log, {
   console.log(`Url is ${url}`);
 
   Log.collapsed('sanity check manifest');
-  const manifestResponse = await request.promise.get({ url: url.replace(/^exp/, 'http') });
+  const manifestResponse = await request.promise.get({
+    url: url.replace(/^exp/, 'http'),
+  });
   const manifest = JSON.parse(manifestResponse.body);
   if (!manifest.name === 'test-suite') {
     throw new Error('Bad name in test-suite manifest');
@@ -69,11 +68,11 @@ export async function ios(Log, {
   await Simulator.openUrlInSimulatorSafeAsync(url);
 
   // Wait for and parse results
-  const allDone = new Promise((resolve) => {
+  const allDone = new Promise(resolve => {
     ProjectUtils.attachLoggerStream(testSuitePath, {
       type: 'raw',
       stream: {
-        write: (chunk) => {
+        write: chunk => {
           if (chunk.msg.indexOf('[TEST-SUITE-END]') >= 0) {
             resolve(JSON.parse(chunk.msg));
           }

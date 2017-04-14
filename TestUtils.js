@@ -1,12 +1,8 @@
 'use strict';
 
-import {
-  NativeModules,
-} from 'react-native';
+import { NativeModules } from 'react-native';
 
-let {
-  ExponentTest,
-} = NativeModules;
+let { ExponentTest } = NativeModules;
 
 export async function acceptPermissionsAndRunCommandAsync(fn) {
   if (!ExponentTest) {

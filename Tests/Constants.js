@@ -14,8 +14,10 @@ export function test(t) {
       'sessionId',
       'manifest',
       'linkingUri',
-    ].forEach(v => t.it(`has ${v}`, () => {
-      t.expect(Constants[v]).toBeDefined();
-    }));
+    ].forEach(v =>
+      t.it(`has ${v}`, () => {
+        t.expect(Constants[v]).toBeDefined();
+      })
+    );
   });
 }
