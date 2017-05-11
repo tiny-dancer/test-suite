@@ -2,15 +2,15 @@
 
 import React from 'react';
 import {
-  AppRegistry,
   Image,
+  Dimensions,
   Linking,
   NativeModules,
   ScrollView,
   Text,
   View,
 } from 'react-native';
-import * as Expo from 'expo';
+import Expo from 'expo';
 import jasmineModule from 'jasmine-core/lib/jasmine-core/jasmine';
 import Immutable from 'immutable';
 
@@ -21,7 +21,6 @@ let { ExponentTest } = NativeModules;
 const testModules = [
   // require('./Tests/Basic1'),
   // require('./Tests/Basic2'),
-
   require('./Tests/Import1'),
   require('./Tests/Import2'),
   require('./Tests/Import3'),
@@ -254,7 +253,6 @@ class App extends React.Component {
       </View>
     );
   };
-
   _renderSuiteResult = r => {
     return (
       <View
@@ -264,7 +262,10 @@ class App extends React.Component {
           borderColor: '#000',
           borderLeftWidth: 3,
         }}>
-        <Text style={{ fontSize: 20 }}>
+        <Text
+          style={{
+            fontSize: 20,
+          }}>
           {r.get('result').get('description')}
         </Text>
         {r.get('specs').map(this._renderSpecResult)}
@@ -272,13 +273,14 @@ class App extends React.Component {
       </View>
     );
   };
-
   _onScrollViewContentSizeChange = (contentWidth, contentHeight) => {
     if (this._scrollViewRef) {
-      this._scrollViewRef.scrollTo({ y: contentHeight });
+      this._scrollViewRef.scrollTo({
+        y: Math.max(0, contentHeight - Dimensions.get('window').height) +
+          Expo.Constants.statusBarHeight,
+      });
     }
   };
-
   render() {
     return (
       <View
@@ -289,21 +291,13 @@ class App extends React.Component {
           justifyContent: 'center',
         }}
         testID="test_suite_container">
-        <View
-          style={{
-            height: 30,
-            padding: 10,
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'flex-start',
-          }}>
-          <Image
-            source={require('./Assets/exponent-icon.png')}
-            style={{ width: 29, height: 24 }}
-          />
-        </View>
         <ScrollView
-          style={{ flex: 1, margin: 5 }}
+          style={{
+            flex: 1,
+          }}
+          contentContainerStyle={{
+            padding: 5,
+          }}
           ref={ref => this._scrollViewRef = ref}
           onContentSizeChange={this._onScrollViewContentSizeChange}>
           {this.state.state.get('suites').map(this._renderSuiteResult)}
@@ -312,5 +306,4 @@ class App extends React.Component {
     );
   }
 }
-
-AppRegistry.registerComponent('main', () => App);
+Expo.registerRootComponent(App);
