@@ -1,11 +1,11 @@
-# Exponent Test Suite
+# Expo Test Suite
 
-Hi! This is what will make Exponent never break ever. 🙏
+Hi! This is what will make Expo never break ever. 🙏
 
 
 ## Running tests
 
-Just run this on XDE or exp and point Exponent to the URL. You can navigate to `<theurl>/+<regexp>` to only run tests whose names match the regexp. The tests are in `Tests/` and their name usually is the same as the filename.
+Just run this on XDE or exp and point Expo to the URL. You can navigate to `<theurl>/+<regexp>` to only run tests whose names match the regexp. The tests are in `Tests/` and their name usually is the same as the filename.
 
 There is also a published version of this at exp://exp.host/@nikki/test-suite. So you can go to, for example, exp://exp.host/@nikki/test-suite/+Assets.* to run the asset tests!
 

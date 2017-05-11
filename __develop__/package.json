@@ -1,0 +1,18 @@
+{
+  "name": "test-suite-dev",
+  "version": "1.0.0",
+  "description": "Test suite for the Exponent SDK",
+  "main": "../index.js",
+  "scripts": {
+    "test": "cd Runner && yarn && cd .. && node Runner/index.js ."
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "expo": "16.0.0",
+    "immutable": "^3.8.1",
+    "jasmine-core": "^2.4.1",
+    "react": "16.0.0-alpha.6",
+    "react-native": "https://github.com/expo/react-native#sdk-16"
+  }
+}

@@ -1,7 +1,7 @@
 {
   "name": "test-suite",
   "version": "1.0.0",
-  "description": "Test suite for the Exponent SDK",
+  "description": "Test suite for the Expo SDK",
   "main": "index.js",
   "scripts": {
     "test": "cd Runner && yarn && cd .. && node Runner/index.js ."
@@ -13,6 +13,6 @@
     "immutable": "^3.8.1",
     "jasmine-core": "^2.4.1",
     "react": "15.4.1",
-    "react-native": "https://github.com/exponent/react-native#exp-latest"
+    "react-native": "https://github.com/expo/react-native#exp-latest"
   }
 }
