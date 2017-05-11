@@ -4,7 +4,6 @@
   "slug": "test-suite",
   "version": "1.0.0",
   "sdkVersion": "UNVERSIONED",
-  "rnCliPath": "../../../react-native-lab/react-native/local-cli/cli.js",
   "nodeModulesPath": "..",
   "packagerOpts": {
     "projectRoots": "",
