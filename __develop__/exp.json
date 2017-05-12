@@ -5,6 +5,7 @@
   "version": "1.0.0",
   "sdkVersion": "UNVERSIONED",
   "nodeModulesPath": "..",
+  "rnCliPath": "../../../react-native-lab/react-native/local-cli/cli.js",
   "packagerOpts": {
     "projectRoots": "",
     "config": "./rn-cli.config.js",
