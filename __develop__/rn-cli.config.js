@@ -1,5 +1,7 @@
 /**
+ *
  * React Native CLI configuration file
+ *
  */
 'use strict';
 
