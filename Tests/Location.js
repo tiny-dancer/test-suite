@@ -9,6 +9,45 @@ export const name = 'Location';
 
 export function test(t) {
   t.describe('Location', () => {
+    t.describe('Location.getProviderStatusAsync()', () => {
+      const timeout = 1000;
+      t.it(
+        'checks if location services are enabled',
+        async () => {
+          // Manual interaction: Android Settings --> Location --> On,
+          const result = await Location.getProviderStatusAsync();
+          t.expect(result.locationServicesEnabled).toBe(true);
+        },
+        timeout
+      );
+      t.it(
+        'detects when GPS sensor is enabled',
+        async () => {
+          // Manual interaction: Android Settings --> Location --> Mode -> Device Only,
+          const result = await Location.getProviderStatusAsync();
+          t.expect(result.gpsAvailable).toBe(true);
+        },
+        timeout
+      );
+      t.it(
+        'detects when network location is enabled',
+        async () => {
+          // Manual interaction: Android Settings --> Location --> Mode -> Battery saving,
+          const result = await Location.getProviderStatusAsync();
+          t.expect(result.networkAvailable).toBe(true);
+        },
+        timeout
+      );
+      t.it(
+        'detects when passive location is enabled',
+        async () => {
+          // Manual interaction: Android Settings --> Location --> Mode -> Battery saving,
+          const result = await Location.getProviderStatusAsync();
+          t.expect(result.passiveAvailable).toBe(true);
+        },
+        timeout
+      );
+    });
     t.describe('Location.getCurrentPositionAsync()', () => {
       // Manual interaction:
       //   1. Just try
