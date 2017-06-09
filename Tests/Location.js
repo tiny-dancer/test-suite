@@ -14,39 +14,37 @@ export function test(t) {
       t.it(
         'checks if location services are enabled',
         async () => {
-          // Manual interaction: Android Settings --> Location --> On,
           const result = await Location.getProviderStatusAsync();
-          t.expect(result.locationServicesEnabled).toBe(true);
+          t.expect(result.locationServicesEnabled).not.toBe(undefined);
         },
         timeout
       );
-      t.it(
-        'detects when GPS sensor is enabled',
-        async () => {
-          // Manual interaction: Android Settings --> Location --> Mode -> Device Only,
-          const result = await Location.getProviderStatusAsync();
-          t.expect(result.gpsAvailable).toBe(true);
-        },
-        timeout
-      );
-      t.it(
-        'detects when network location is enabled',
-        async () => {
-          // Manual interaction: Android Settings --> Location --> Mode -> Battery saving,
-          const result = await Location.getProviderStatusAsync();
-          t.expect(result.networkAvailable).toBe(true);
-        },
-        timeout
-      );
-      t.it(
-        'detects when passive location is enabled',
-        async () => {
-          // Manual interaction: Android Settings --> Location --> Mode -> Battery saving,
-          const result = await Location.getProviderStatusAsync();
-          t.expect(result.passiveAvailable).toBe(true);
-        },
-        timeout
-      );
+      if (Platform.OS === 'android') {
+        t.it(
+          'detects when GPS sensor is enabled',
+          async () => {
+            const result = await Location.getProviderStatusAsync();
+            t.expect(result.gpsAvailable).not.toBe(undefined);
+          },
+          timeout
+        );
+        t.it(
+          'detects when network location is enabled',
+          async () => {
+            const result = await Location.getProviderStatusAsync();
+            t.expect(result.networkAvailable).not.toBe(undefined);
+          },
+          timeout
+        );
+        t.it(
+          'detects when passive location is enabled',
+          async () => {
+            const result = await Location.getProviderStatusAsync();
+            t.expect(result.passiveAvailable).not.toBe(undefined);
+          },
+          timeout
+        );
+      }
     });
     t.describe('Location.getCurrentPositionAsync()', () => {
       // Manual interaction:
