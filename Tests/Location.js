@@ -142,5 +142,38 @@ export function test(t) {
         timeout + second
       );
     });
+
+    t.describe('Location.getHeadingAsync()', () => {
+      const testCompass = options => async () => {
+        const {
+          status,
+        } = await TestUtils.acceptPermissionsAndRunCommandAsync(() => {
+          return Permissions.askAsync(Permissions.LOCATION);
+        });
+        if (status === 'granted') {
+          const heading = await Location.getHeadingAsync();
+          console.log(heading);
+          t.expect(typeof heading.magHeading === 'number').toBe(true);
+          t.expect(typeof heading.trueHeading === 'number').toBe(true);
+          t.expect(typeof heading.accuracy === 'number').toBe(true);
+        } else {
+          let error;
+          try {
+            await Location.getHeadingAsync();
+          } catch (e) {
+            error = e;
+          }
+          t.expect(error.message).toMatch(/Not authorized/);
+        }
+      };
+      const second = 1000;
+      const timeout = 20 * second; // Allow manual touch on permissions dialog
+
+      t.it(
+        'Checks if compass is returning right values (trueHeading, magHeading, accuracy)',
+        testCompass(),
+        timeout
+      );
+    });
   });
 }
