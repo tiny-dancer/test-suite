@@ -21,7 +21,9 @@ export function test(t) {
           t.expect(contacts.total > 0).toBe(true);
           t.expect(contacts.data.length > 0).toBe(true);
           contacts.data.forEach(({ id, name, phoneNumber, email }) => {
-            t.expect(typeof id === 'number').toBe(true);
+            t
+              .expect(typeof id === 'string' || typeof id === 'number')
+              .toBe(true);
             t
               .expect(typeof name === 'string' || typeof name === 'undefined')
               .toBe(true);
