@@ -8,7 +8,7 @@ import * as TestUtils from '../TestUtils';
 export const name = 'Location';
 
 export function test(t) {
-  t.fdescribe('Location', () => {
+  t.describe('Location', () => {
     t.describe('Location.getProviderStatusAsync()', () => {
       const timeout = 1000;
       t.it(
