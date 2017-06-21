@@ -37,10 +37,6 @@ const publishTestSuite = (branch, tag) => ({
 
     // Install exponent-sdk from its code in the same commit.
     Log.collapsed('Installing exponent-sdk in test-suite...');
-    await spawnAsync('npm', ['remove', '--save', 'exponent'], {
-      stdio: 'inherit',
-      cwd: testSuitePath,
-    });
     await spawnAsync(
       'npm',
       [
