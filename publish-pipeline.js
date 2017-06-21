@@ -35,25 +35,6 @@ const publishTestSuite = (branch, tag) => ({
       cwd: testSuitePath,
     });
 
-    // Install exponent-sdk from its code in the same commit.
-    Log.collapsed('Installing exponent-sdk in test-suite...');
-    await spawnAsync('npm', ['remove', '--save', 'exponent'], {
-      stdio: 'inherit',
-      cwd: testSuitePath,
-    });
-    await spawnAsync(
-      'npm',
-      [
-        'install',
-        '--save',
-        `file://${path.join(universePath, 'libraries', 'exponent-sdk')}`,
-      ],
-      {
-        stdio: 'inherit',
-        cwd: testSuitePath,
-      }
-    );
-
     Log.collapsed('Modifying slug...');
     let expJsonFile = new JsonFile(path.join(testSuitePath, 'exp.json'));
     let expJson = await expJsonFile.readAsync();
