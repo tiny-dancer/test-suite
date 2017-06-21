@@ -14,7 +14,7 @@ export default {
     description: 'Publishes Test Suite',
     allowPRs: true,
     branches: 'master',
-    regions: ['apps/test-suite/**'],
+    regions: ['apps/test-suite/**', 'libraries/exponent-sdk/**'],
   },
   steps: (branch, tag) => [publishTestSuite(branch, tag)],
 };
