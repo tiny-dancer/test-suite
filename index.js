@@ -29,6 +29,7 @@ const testModules = [
   require('./Tests/Contacts'),
   require('./Tests/Location'),
   require('./Tests/SQLite'),
+  require('./Tests/FileSystem'),
 ];
 
 class App extends React.Component {
@@ -243,13 +244,14 @@ class App extends React.Component {
               passed: '😄 ',
               failed: '😞 ',
             }[status]
-          }{r.get('description')} ({status})
+          }
+          {r.get('description')} ({status})
         </Text>
-        {r.get('failedExpectations').map((e, i) => (
+        {r.get('failedExpectations').map((e, i) =>
           <Text key={i}>
             {e.get('message')}
           </Text>
-        ))}
+        )}
       </View>
     );
   };
@@ -276,8 +278,9 @@ class App extends React.Component {
   _onScrollViewContentSizeChange = (contentWidth, contentHeight) => {
     if (this._scrollViewRef) {
       this._scrollViewRef.scrollTo({
-        y: Math.max(0, contentHeight - Dimensions.get('window').height) +
-          Expo.Constants.statusBarHeight,
+        y:
+          Math.max(0, contentHeight - Dimensions.get('window').height) +
+            Expo.Constants.statusBarHeight,
       });
     }
   };
@@ -298,7 +301,7 @@ class App extends React.Component {
           contentContainerStyle={{
             padding: 5,
           }}
-          ref={ref => this._scrollViewRef = ref}
+          ref={ref => (this._scrollViewRef = ref)}
           onContentSizeChange={this._onScrollViewContentSizeChange}>
           {this.state.state.get('suites').map(this._renderSuiteResult)}
         </ScrollView>
