@@ -7,8 +7,8 @@ import { NativeModules } from 'react-native';
 export function test(t) {
   t.describe('FileSystem', () => {
     t.it(
-      'delete(idempotent) -> !exists -> download(md5, uri) --> exists ' +
-        '--> delete --> !exists',
+      'delete(idempotent) -> !exists -> download(md5, uri) -> exists ' +
+        '-> delete -> !exists',
       async () => {
         const filename = 'download1.png';
 
@@ -62,5 +62,43 @@ export function test(t) {
       }
       t.expect(error.message).toMatch(/not.*found/);
     });
+
+    t.it(
+      'download(md5, uri) -> read -> delete -> !exists -> read[error]',
+      async () => {
+        const filename = 'download1.png';
+
+        const {
+          md5,
+          uri,
+        } = await NativeModules.ExponentFileSystem.downloadAsync(
+          'https://s3-us-west-1.amazonaws.com/test-suite-data/text-file.txt',
+          filename,
+          { md5: true }
+        );
+        t.expect(md5).toBe('86d73d2f11e507365f7ea8e7ec3cc4cb');
+
+        const string = await NativeModules.ExponentFileSystem.readAsStringAsync(
+          filename,
+          {}
+        );
+        t.expect(string).toBe('hello, world\nthis is a test file\n');
+
+        await NativeModules.ExponentFileSystem.deleteAsync(filename, {
+          idempotent: true,
+        });
+
+        let error;
+        try {
+          await NativeModules.ExponentFileSystem.readAsStringAsync(
+            filename,
+            {}
+          );
+        } catch (e) {
+          error = e;
+        }
+        t.expect(typeof error === undefined).not.toBeTruthy();
+      }
+    );
   });
 }
