@@ -5,7 +5,7 @@ export const name = 'FileSystem';
 import { NativeModules } from 'react-native';
 
 export function test(t) {
-  t.describe('FileSystem', () => {
+  t.fdescribe('FileSystem', () => {
     t.it(
       'delete(idempotent) -> !exists -> download(md5, uri) -> exists ' +
         '-> delete -> !exists',
@@ -66,7 +66,7 @@ export function test(t) {
     t.it(
       'download(md5, uri) -> read -> delete -> !exists -> read[error]',
       async () => {
-        const filename = 'download1.png';
+        const filename = 'download1.txt';
 
         const {
           md5,
@@ -98,6 +98,39 @@ export function test(t) {
           error = e;
         }
         t.expect(typeof error === undefined).not.toBeTruthy();
+      }
+    );
+
+    t.it(
+      'delete(idempotent) -> !exists -> write -> read -> write -> read',
+      async () => {
+        const filename = 'write1.txt';
+
+        await NativeModules.ExponentFileSystem.deleteAsync(filename, {
+          idempotent: true,
+        });
+
+        const { exists } = await NativeModules.ExponentFileSystem.getInfoAsync(
+          filename,
+          {}
+        );
+        t.expect(exists).not.toBeTruthy();
+
+        const writeAndVerify = async expected => {
+          await NativeModules.ExponentFileSystem.writeAsStringAsync(
+            filename,
+            expected,
+            {}
+          );
+          const string = await NativeModules.ExponentFileSystem.readAsStringAsync(
+            filename,
+            {}
+          );
+          t.expect(string).toBe(expected);
+        };
+
+        await writeAndVerify('hello, world');
+        await writeAndVerify('hello, world!!!!!!');
       }
     );
   });
