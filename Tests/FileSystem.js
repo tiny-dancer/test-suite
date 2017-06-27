@@ -133,5 +133,38 @@ export function test(t) {
         await writeAndVerify('hello, world!!!!!!');
       }
     );
+
+    t.it(
+      'delete(new) -> write -> move -> write -> move ' +
+        '-> !exists(orig) -> read(new)',
+      async () => {
+        const from = 'from.txt';
+        const to = 'to.txt';
+        const contents = ['contents 1', 'contents 2'];
+
+        await NativeModules.ExponentFileSystem.deleteAsync(to, {
+          idempotent: true,
+        });
+
+        // Move twice to make sure we can overwrite
+        for (let i = 0; i < 2; ++i) {
+          await NativeModules.ExponentFileSystem.writeAsStringAsync(
+            from,
+            contents[i],
+            {}
+          );
+          await NativeModules.ExponentFileSystem.moveAsync({ from, to });
+          const {
+            exists,
+          } = await NativeModules.ExponentFileSystem.getInfoAsync(from, {});
+          t.expect(exists).not.toBeTruthy();
+          t
+            .expect(
+              await NativeModules.ExponentFileSystem.readAsStringAsync(to, {})
+            )
+            .toBe(contents[i]);
+        }
+      }
+    );
   });
 }
