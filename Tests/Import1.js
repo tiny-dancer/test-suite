@@ -1,6 +1,6 @@
 'use strict';
 
-import Expo from 'expo';
+import * as Expo from 'expo';
 
 export const name = 'Import1';
 
