@@ -44,7 +44,8 @@ export function test(t) {
 
         await NativeModules.ExponentFileSystem.deleteAsync(filename, {});
         await assertExists(false);
-      }
+      },
+      9000
     );
 
     t.it('delete(idempotent) -> delete[error]', async () => {
@@ -97,8 +98,9 @@ export function test(t) {
         } catch (e) {
           error = e;
         }
-        t.expect(typeof error === undefined).not.toBeTruthy();
-      }
+        t.expect(error).toBeTruthy();
+      },
+      9000
     );
 
     t.it(
