@@ -205,5 +205,106 @@ export function test(t) {
         }
       }
     );
+
+    t.it(
+      'delete(dir) -> write(dir/file)[error] -> mkdir(dir) ->' +
+      'mkdir(dir)[error] -> write(dir/file) -> read',
+      async () => {
+        let error;
+        const path = 'dir/file';
+        const dir = 'dir';
+        const contents = 'hello, world';
+
+        await NativeModules.ExponentFileSystem.deleteAsync(dir, {
+          idempotent: true,
+        });
+
+        error = null;
+        try {
+          await NativeModules.ExponentFileSystem.writeAsStringAsync(
+            path,
+            contents,
+            {}
+          );
+        } catch (e) {
+          error = e;
+        }
+        t.expect(error).toBeTruthy();
+
+        await NativeModules.ExponentFileSystem.makeDirectoryAsync(dir, {});
+
+        error = null;
+        try {
+          await NativeModules.ExponentFileSystem.makeDirectoryAsync(dir, {});
+        } catch (e) {
+          error = e;
+        }
+        t.expect(error).toBeTruthy();
+
+        await NativeModules.ExponentFileSystem.writeAsStringAsync(
+          path,
+          contents,
+          {}
+        );
+
+        t
+          .expect(
+            await NativeModules.ExponentFileSystem.readAsStringAsync(path, {})
+          )
+          .toBe(contents);
+      }
+    );
+
+    t.it(
+      'delete(dir) -> write(dir/dir2/file)[error] -> ' +
+      'mkdir(dir/dir2, intermediates) -> ' +
+      'mkdir(dir/dir2, intermediates) -> write(dir/dir2/file) -> read',
+      async () => {
+        let error;
+        const path = 'dir/dir2/file';
+        const dir = 'dir/dir2';
+        const contents = 'hello, world';
+
+        await NativeModules.ExponentFileSystem.deleteAsync('dir', {
+          idempotent: true,
+        });
+
+        error = null;
+        try {
+          await NativeModules.ExponentFileSystem.writeAsStringAsync(
+            path,
+            contents,
+            {}
+          );
+        } catch (e) {
+          error = e;
+        }
+        t.expect(error).toBeTruthy();
+
+        await NativeModules.ExponentFileSystem.makeDirectoryAsync(dir, {
+          intermediates: true,
+        });
+
+        error = null;
+        try {
+          await NativeModules.ExponentFileSystem.makeDirectoryAsync(dir, {});
+        } catch (e) {
+          error = e;
+        }
+        t.expect(error).toBeTruthy();
+
+        await NativeModules.ExponentFileSystem.writeAsStringAsync(
+          path,
+          contents,
+          {}
+        );
+
+        t
+          .expect(
+            await NativeModules.ExponentFileSystem.readAsStringAsync(path, {})
+          )
+          .toBe(contents);
+      }
+    );
   });
 }
