@@ -135,8 +135,7 @@ export function test(t) {
     );
 
     t.it(
-      'delete(new) -> write -> move -> write -> move ' +
-        '-> !exists(orig) -> read(new)',
+      'delete(new) -> 2 * [write -> move -> !exists(orig) -> read(new)]',
       async () => {
         const from = 'from.txt';
         const to = 'to.txt';
@@ -153,11 +152,49 @@ export function test(t) {
             contents[i],
             {}
           );
+
           await NativeModules.ExponentFileSystem.moveAsync({ from, to });
+
           const {
             exists,
           } = await NativeModules.ExponentFileSystem.getInfoAsync(from, {});
           t.expect(exists).not.toBeTruthy();
+
+          t
+            .expect(
+              await NativeModules.ExponentFileSystem.readAsStringAsync(to, {})
+            )
+            .toBe(contents[i]);
+        }
+      }
+    );
+
+    t.it(
+      'delete(new) -> 2 * [write -> copy -> exists(orig) -> read(new)]',
+      async () => {
+        const from = 'from.txt';
+        const to = 'to.txt';
+        const contents = ['contents 1', 'contents 2'];
+
+        await NativeModules.ExponentFileSystem.deleteAsync(to, {
+          idempotent: true,
+        });
+
+        // Copy twice to make sure we can overwrite
+        for (let i = 0; i < 2; ++i) {
+          await NativeModules.ExponentFileSystem.writeAsStringAsync(
+            from,
+            contents[i],
+            {}
+          );
+
+          await NativeModules.ExponentFileSystem.copyAsync({ from, to });
+
+          const {
+            exists,
+          } = await NativeModules.ExponentFileSystem.getInfoAsync(from, {});
+          t.expect(exists).toBeTruthy();
+
           t
             .expect(
               await NativeModules.ExponentFileSystem.readAsStringAsync(to, {})
