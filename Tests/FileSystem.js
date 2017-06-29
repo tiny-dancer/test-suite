@@ -306,5 +306,69 @@ export function test(t) {
           .toBe(contents);
       }
     );
+
+    t.it(
+      'delete(dir, idempotent) -> make tree -> check contents ' +
+      '-> check directory listings',
+      async () => {
+        let error;
+
+        await NativeModules.ExponentFileSystem.deleteAsync('dir', {
+          idempotent: true,
+        });
+
+        await NativeModules.ExponentFileSystem.makeDirectoryAsync('dir/child1', {
+          intermediates: true,
+        });
+        await NativeModules.ExponentFileSystem.makeDirectoryAsync('dir/child2', {
+          intermediates: true,
+        });
+
+        await NativeModules.ExponentFileSystem.writeAsStringAsync(
+          'dir/file1', 'contents1', {});
+        await NativeModules.ExponentFileSystem.writeAsStringAsync(
+          'dir/file2', 'contents2', {});
+
+        await NativeModules.ExponentFileSystem.writeAsStringAsync(
+          'dir/child1/file3', 'contents3', {});
+
+        await NativeModules.ExponentFileSystem.writeAsStringAsync(
+          'dir/child2/file4', 'contents4', {});
+        await NativeModules.ExponentFileSystem.writeAsStringAsync(
+          'dir/child2/file5', 'contents5', {});
+
+        const checkContents = async (path, contents) => (
+          t
+            .expect(
+              await NativeModules.ExponentFileSystem.readAsStringAsync(path, {})
+            )
+            .toBe(contents)
+        );
+
+        await checkContents('dir/file1', 'contents1');
+        await checkContents('dir/file2', 'contents2');
+        await checkContents('dir/child1/file3', 'contents3');
+        await checkContents('dir/child2/file4', 'contents4');
+        await checkContents('dir/child2/file5', 'contents5');
+
+        const checkDirectory = async (path, expected) => {
+          const list =
+            await NativeModules.ExponentFileSystem.readDirectoryAsync(path, {});
+          t.expect(list.sort()).toEqual(expected.sort());
+        };
+
+        await checkDirectory('dir', ['file1', 'file2', 'child1', 'child2']);
+        await checkDirectory('dir/child1', ['file3']);
+        await checkDirectory('dir/child2', ['file4', 'file5']);
+
+        error = null;
+        try {
+          await checkDirectory('dir/file1', ['nope']);
+        } catch (e) {
+          error = e;
+        }
+        t.expect(error).toBeTruthy();
+      }
+    );
   });
 }
