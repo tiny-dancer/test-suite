@@ -370,5 +370,40 @@ export function test(t) {
         t.expect(error).toBeTruthy();
       }
     );
+
+    t.it(
+      'delete(idempotent) -> download(md5) -> getInfo(size)',
+      async () => {
+        const filename = 'download1.png';
+
+        await NativeModules.ExponentFileSystem.deleteAsync(filename, {
+          idempotent: true,
+        });
+
+        const {
+          md5,
+        } = await NativeModules.ExponentFileSystem.downloadAsync(
+          'https://s3-us-west-1.amazonaws.com/test-suite-data/avatar2.png',
+          filename,
+          { md5: true }
+        );
+        t.expect(md5).toBe('1e02045c10b8f1145edc7c8375998f87');
+
+        const {
+          size,
+          modificationTime,
+        } = await NativeModules.ExponentFileSystem.getInfoAsync(
+          filename,
+          {}
+        );
+        t.expect(size).toBe(3230);
+        const nowTime = 0.001 * (new Date()).getTime();
+        t.expect(nowTime - modificationTime).toBeLessThan(3600);
+        console.log(nowTime - modificationTime);
+
+        await NativeModules.ExponentFileSystem.deleteAsync(filename, {});
+      },
+      9000
+    );
   });
 }
