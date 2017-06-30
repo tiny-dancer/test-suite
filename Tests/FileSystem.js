@@ -5,7 +5,7 @@ export const name = 'FileSystem';
 import { NativeModules } from 'react-native';
 
 export function test(t) {
-  t.fdescribe('FileSystem', () => {
+  t.describe('FileSystem', () => {
     t.it(
       'delete(idempotent) -> !exists -> download(md5, uri) -> exists ' +
         '-> delete -> !exists',
@@ -404,6 +404,44 @@ export function test(t) {
         await NativeModules.ExponentFileSystem.deleteAsync(filename, {});
       },
       9000
+    );
+
+    t.it(
+      'throws out-of-scope exceptions',
+      async () => {
+        const throws = async (run) => {
+          let error = null;
+          try {
+            await run();
+          } catch (e) {
+            error = e;
+          }
+          t.expect(error).toBeTruthy();
+        }
+
+        await throws(() => NativeModules.ExponentFileSystem.getInfoAsync(
+          '../hello/world', {}));
+        await throws(() => NativeModules.ExponentFileSystem.readAsStringAsync(
+          '../hello/world', {}));
+        await throws(() => NativeModules.ExponentFileSystem.writeAsStringAsync(
+          '../hello/world', '', {}));
+        await throws(() => NativeModules.ExponentFileSystem.deleteAsync(
+          '../hello/world', {}));
+        await throws(() => NativeModules.ExponentFileSystem.moveAsync(
+          { from: '../a/b', to: 'c' }));
+        await throws(() => NativeModules.ExponentFileSystem.moveAsync(
+          { from: 'c', to: '../a/b' }));
+        await throws(() => NativeModules.ExponentFileSystem.copyAsync(
+          { from: '../a/b', to: 'c' }));
+        await throws(() => NativeModules.ExponentFileSystem.copyAsync(
+          { from: 'c', to: '../a/b' }));
+        await throws(() => NativeModules.ExponentFileSystem.makeDirectoryAsync(
+          '../hello/world', {}));
+        await throws(() => NativeModules.ExponentFileSystem.readDirectoryAsync(
+          '../hello/world', {}));
+        await throws(() => NativeModules.ExponentFileSystem.downloadAsync(
+          'http://www.google.com', '../hello/world', {}));
+      }
     );
   });
 }
