@@ -2,10 +2,10 @@
 
 export const name = 'FileSystem';
 
-import { NativeModules } from 'react-native';
+import { FileSystem as FS } from 'expo';
 
 export function test(t) {
-  t.describe('FileSystem', () => {
+  t.fdescribe('FileSystem', () => {
     t.it(
       'delete(idempotent) -> !exists -> download(md5, uri) -> exists ' +
         '-> delete -> !exists',
@@ -13,10 +13,7 @@ export function test(t) {
         const filename = 'download1.png';
 
         const assertExists = async expectedToExist => {
-          let { exists } = await NativeModules.ExponentFileSystem.getInfoAsync(
-            filename,
-            {}
-          );
+          let { exists } = await FS.getInfoAsync(filename, {});
           if (expectedToExist) {
             t.expect(exists).toBeTruthy();
           } else {
@@ -24,7 +21,7 @@ export function test(t) {
           }
         };
 
-        await NativeModules.ExponentFileSystem.deleteAsync(filename, {
+        await FS.deleteAsync(filename, {
           idempotent: true,
         });
         await assertExists(false);
@@ -32,7 +29,7 @@ export function test(t) {
         const {
           md5,
           uri,
-        } = await NativeModules.ExponentFileSystem.downloadAsync(
+        } = await FS.downloadAsync(
           'https://s3-us-west-1.amazonaws.com/test-suite-data/avatar2.png',
           filename,
           { md5: true }
@@ -42,7 +39,7 @@ export function test(t) {
         t.expect(uri.slice(-filename.length)).toBe(filename);
         await assertExists(true);
 
-        await NativeModules.ExponentFileSystem.deleteAsync(filename, {});
+        await FS.deleteAsync(filename, {});
         await assertExists(false);
       },
       9000
@@ -51,13 +48,13 @@ export function test(t) {
     t.it('delete(idempotent) -> delete[error]', async () => {
       const filename = 'willDelete.png';
 
-      await NativeModules.ExponentFileSystem.deleteAsync(filename, {
+      await FS.deleteAsync(filename, {
         idempotent: true,
       });
 
       let error;
       try {
-        await NativeModules.ExponentFileSystem.deleteAsync(filename, {});
+        await FS.deleteAsync(filename, {});
       } catch (e) {
         error = e;
       }
@@ -72,29 +69,23 @@ export function test(t) {
         const {
           md5,
           uri,
-        } = await NativeModules.ExponentFileSystem.downloadAsync(
+        } = await FS.downloadAsync(
           'https://s3-us-west-1.amazonaws.com/test-suite-data/text-file.txt',
           filename,
           { md5: true }
         );
         t.expect(md5).toBe('86d73d2f11e507365f7ea8e7ec3cc4cb');
 
-        const string = await NativeModules.ExponentFileSystem.readAsStringAsync(
-          filename,
-          {}
-        );
+        const string = await FS.readAsStringAsync(filename, {});
         t.expect(string).toBe('hello, world\nthis is a test file\n');
 
-        await NativeModules.ExponentFileSystem.deleteAsync(filename, {
+        await FS.deleteAsync(filename, {
           idempotent: true,
         });
 
         let error;
         try {
-          await NativeModules.ExponentFileSystem.readAsStringAsync(
-            filename,
-            {}
-          );
+          await FS.readAsStringAsync(filename, {});
         } catch (e) {
           error = e;
         }
@@ -108,26 +99,16 @@ export function test(t) {
       async () => {
         const filename = 'write1.txt';
 
-        await NativeModules.ExponentFileSystem.deleteAsync(filename, {
+        await FS.deleteAsync(filename, {
           idempotent: true,
         });
 
-        const { exists } = await NativeModules.ExponentFileSystem.getInfoAsync(
-          filename,
-          {}
-        );
+        const { exists } = await FS.getInfoAsync(filename, {});
         t.expect(exists).not.toBeTruthy();
 
         const writeAndVerify = async expected => {
-          await NativeModules.ExponentFileSystem.writeAsStringAsync(
-            filename,
-            expected,
-            {}
-          );
-          const string = await NativeModules.ExponentFileSystem.readAsStringAsync(
-            filename,
-            {}
-          );
+          await FS.writeAsStringAsync(filename, expected, {});
+          const string = await FS.readAsStringAsync(filename, {});
           t.expect(string).toBe(expected);
         };
 
@@ -143,30 +124,20 @@ export function test(t) {
         const to = 'to.txt';
         const contents = ['contents 1', 'contents 2'];
 
-        await NativeModules.ExponentFileSystem.deleteAsync(to, {
+        await FS.deleteAsync(to, {
           idempotent: true,
         });
 
         // Move twice to make sure we can overwrite
         for (let i = 0; i < 2; ++i) {
-          await NativeModules.ExponentFileSystem.writeAsStringAsync(
-            from,
-            contents[i],
-            {}
-          );
+          await FS.writeAsStringAsync(from, contents[i], {});
 
-          await NativeModules.ExponentFileSystem.moveAsync({ from, to });
+          await FS.moveAsync({ from, to });
 
-          const {
-            exists,
-          } = await NativeModules.ExponentFileSystem.getInfoAsync(from, {});
+          const { exists } = await FS.getInfoAsync(from, {});
           t.expect(exists).not.toBeTruthy();
 
-          t
-            .expect(
-              await NativeModules.ExponentFileSystem.readAsStringAsync(to, {})
-            )
-            .toBe(contents[i]);
+          t.expect(await FS.readAsStringAsync(to, {})).toBe(contents[i]);
         }
       }
     );
@@ -178,172 +149,128 @@ export function test(t) {
         const to = 'to.txt';
         const contents = ['contents 1', 'contents 2'];
 
-        await NativeModules.ExponentFileSystem.deleteAsync(to, {
+        await FS.deleteAsync(to, {
           idempotent: true,
         });
 
         // Copy twice to make sure we can overwrite
         for (let i = 0; i < 2; ++i) {
-          await NativeModules.ExponentFileSystem.writeAsStringAsync(
-            from,
-            contents[i],
-            {}
-          );
+          await FS.writeAsStringAsync(from, contents[i], {});
 
-          await NativeModules.ExponentFileSystem.copyAsync({ from, to });
+          await FS.copyAsync({ from, to });
 
-          const {
-            exists,
-          } = await NativeModules.ExponentFileSystem.getInfoAsync(from, {});
+          const { exists } = await FS.getInfoAsync(from, {});
           t.expect(exists).toBeTruthy();
 
-          t
-            .expect(
-              await NativeModules.ExponentFileSystem.readAsStringAsync(to, {})
-            )
-            .toBe(contents[i]);
+          t.expect(await FS.readAsStringAsync(to, {})).toBe(contents[i]);
         }
       }
     );
 
     t.it(
       'delete(dir) -> write(dir/file)[error] -> mkdir(dir) ->' +
-      'mkdir(dir)[error] -> write(dir/file) -> read',
+        'mkdir(dir)[error] -> write(dir/file) -> read',
       async () => {
         let error;
         const path = 'dir/file';
         const dir = 'dir';
         const contents = 'hello, world';
 
-        await NativeModules.ExponentFileSystem.deleteAsync(dir, {
+        await FS.deleteAsync(dir, {
           idempotent: true,
         });
 
         error = null;
         try {
-          await NativeModules.ExponentFileSystem.writeAsStringAsync(
-            path,
-            contents,
-            {}
-          );
+          await FS.writeAsStringAsync(path, contents, {});
         } catch (e) {
           error = e;
         }
         t.expect(error).toBeTruthy();
 
-        await NativeModules.ExponentFileSystem.makeDirectoryAsync(dir, {});
+        await FS.makeDirectoryAsync(dir, {});
 
         error = null;
         try {
-          await NativeModules.ExponentFileSystem.makeDirectoryAsync(dir, {});
+          await FS.makeDirectoryAsync(dir, {});
         } catch (e) {
           error = e;
         }
         t.expect(error).toBeTruthy();
 
-        await NativeModules.ExponentFileSystem.writeAsStringAsync(
-          path,
-          contents,
-          {}
-        );
+        await FS.writeAsStringAsync(path, contents, {});
 
-        t
-          .expect(
-            await NativeModules.ExponentFileSystem.readAsStringAsync(path, {})
-          )
-          .toBe(contents);
+        t.expect(await FS.readAsStringAsync(path, {})).toBe(contents);
       }
     );
 
     t.it(
       'delete(dir) -> write(dir/dir2/file)[error] -> ' +
-      'mkdir(dir/dir2, intermediates) -> ' +
-      'mkdir(dir/dir2, intermediates) -> write(dir/dir2/file) -> read',
+        'mkdir(dir/dir2, intermediates) -> ' +
+        'mkdir(dir/dir2, intermediates) -> write(dir/dir2/file) -> read',
       async () => {
         let error;
         const path = 'dir/dir2/file';
         const dir = 'dir/dir2';
         const contents = 'hello, world';
 
-        await NativeModules.ExponentFileSystem.deleteAsync('dir', {
+        await FS.deleteAsync('dir', {
           idempotent: true,
         });
 
         error = null;
         try {
-          await NativeModules.ExponentFileSystem.writeAsStringAsync(
-            path,
-            contents,
-            {}
-          );
+          await FS.writeAsStringAsync(path, contents, {});
         } catch (e) {
           error = e;
         }
         t.expect(error).toBeTruthy();
 
-        await NativeModules.ExponentFileSystem.makeDirectoryAsync(dir, {
+        await FS.makeDirectoryAsync(dir, {
           intermediates: true,
         });
 
         error = null;
         try {
-          await NativeModules.ExponentFileSystem.makeDirectoryAsync(dir, {});
+          await FS.makeDirectoryAsync(dir, {});
         } catch (e) {
           error = e;
         }
         t.expect(error).toBeTruthy();
 
-        await NativeModules.ExponentFileSystem.writeAsStringAsync(
-          path,
-          contents,
-          {}
-        );
+        await FS.writeAsStringAsync(path, contents, {});
 
-        t
-          .expect(
-            await NativeModules.ExponentFileSystem.readAsStringAsync(path, {})
-          )
-          .toBe(contents);
+        t.expect(await FS.readAsStringAsync(path, {})).toBe(contents);
       }
     );
 
     t.it(
       'delete(dir, idempotent) -> make tree -> check contents ' +
-      '-> check directory listings',
+        '-> check directory listings',
       async () => {
         let error;
 
-        await NativeModules.ExponentFileSystem.deleteAsync('dir', {
+        await FS.deleteAsync('dir', {
           idempotent: true,
         });
 
-        await NativeModules.ExponentFileSystem.makeDirectoryAsync('dir/child1', {
+        await FS.makeDirectoryAsync('dir/child1', {
           intermediates: true,
         });
-        await NativeModules.ExponentFileSystem.makeDirectoryAsync('dir/child2', {
+        await FS.makeDirectoryAsync('dir/child2', {
           intermediates: true,
         });
 
-        await NativeModules.ExponentFileSystem.writeAsStringAsync(
-          'dir/file1', 'contents1', {});
-        await NativeModules.ExponentFileSystem.writeAsStringAsync(
-          'dir/file2', 'contents2', {});
+        await FS.writeAsStringAsync('dir/file1', 'contents1', {});
+        await FS.writeAsStringAsync('dir/file2', 'contents2', {});
 
-        await NativeModules.ExponentFileSystem.writeAsStringAsync(
-          'dir/child1/file3', 'contents3', {});
+        await FS.writeAsStringAsync('dir/child1/file3', 'contents3', {});
 
-        await NativeModules.ExponentFileSystem.writeAsStringAsync(
-          'dir/child2/file4', 'contents4', {});
-        await NativeModules.ExponentFileSystem.writeAsStringAsync(
-          'dir/child2/file5', 'contents5', {});
+        await FS.writeAsStringAsync('dir/child2/file4', 'contents4', {});
+        await FS.writeAsStringAsync('dir/child2/file5', 'contents5', {});
 
-        const checkContents = async (path, contents) => (
-          t
-            .expect(
-              await NativeModules.ExponentFileSystem.readAsStringAsync(path, {})
-            )
-            .toBe(contents)
-        );
+        const checkContents = async (path, contents) =>
+          t.expect(await FS.readAsStringAsync(path, {})).toBe(contents);
 
         await checkContents('dir/file1', 'contents1');
         await checkContents('dir/file2', 'contents2');
@@ -352,8 +279,7 @@ export function test(t) {
         await checkContents('dir/child2/file5', 'contents5');
 
         const checkDirectory = async (path, expected) => {
-          const list =
-            await NativeModules.ExponentFileSystem.readDirectoryAsync(path, {});
+          const list = await FS.readDirectoryAsync(path, {});
           t.expect(list.sort()).toEqual(expected.sort());
         };
 
@@ -376,72 +302,54 @@ export function test(t) {
       async () => {
         const filename = 'download1.png';
 
-        await NativeModules.ExponentFileSystem.deleteAsync(filename, {
+        await FS.deleteAsync(filename, {
           idempotent: true,
         });
 
         const {
           md5,
-        } = await NativeModules.ExponentFileSystem.downloadAsync(
+        } = await FS.downloadAsync(
           'https://s3-us-west-1.amazonaws.com/test-suite-data/avatar2.png',
           filename,
           { md5: true }
         );
         t.expect(md5).toBe('1e02045c10b8f1145edc7c8375998f87');
 
-        const {
-          size,
-          modificationTime,
-        } = await NativeModules.ExponentFileSystem.getInfoAsync(
-          filename,
-          {}
-        );
+        const { size, modificationTime } = await FS.getInfoAsync(filename, {});
         t.expect(size).toBe(3230);
-        const nowTime = 0.001 * (new Date()).getTime();
+        const nowTime = 0.001 * new Date().getTime();
         t.expect(nowTime - modificationTime).toBeLessThan(3600);
         console.log(nowTime - modificationTime);
 
-        await NativeModules.ExponentFileSystem.deleteAsync(filename, {});
+        await FS.deleteAsync(filename, {});
       },
       9000
     );
 
-    t.it(
-      'throws out-of-scope exceptions',
-      async () => {
-        const throws = async (run) => {
-          let error = null;
-          try {
-            await run();
-          } catch (e) {
-            error = e;
-          }
-          t.expect(error).toBeTruthy();
+    t.it('throws out-of-scope exceptions', async () => {
+      const throws = async run => {
+        let error = null;
+        try {
+          await run();
+        } catch (e) {
+          error = e;
         }
+        t.expect(error).toBeTruthy();
+      };
 
-        await throws(() => NativeModules.ExponentFileSystem.getInfoAsync(
-          '../hello/world', {}));
-        await throws(() => NativeModules.ExponentFileSystem.readAsStringAsync(
-          '../hello/world', {}));
-        await throws(() => NativeModules.ExponentFileSystem.writeAsStringAsync(
-          '../hello/world', '', {}));
-        await throws(() => NativeModules.ExponentFileSystem.deleteAsync(
-          '../hello/world', {}));
-        await throws(() => NativeModules.ExponentFileSystem.moveAsync(
-          { from: '../a/b', to: 'c' }));
-        await throws(() => NativeModules.ExponentFileSystem.moveAsync(
-          { from: 'c', to: '../a/b' }));
-        await throws(() => NativeModules.ExponentFileSystem.copyAsync(
-          { from: '../a/b', to: 'c' }));
-        await throws(() => NativeModules.ExponentFileSystem.copyAsync(
-          { from: 'c', to: '../a/b' }));
-        await throws(() => NativeModules.ExponentFileSystem.makeDirectoryAsync(
-          '../hello/world', {}));
-        await throws(() => NativeModules.ExponentFileSystem.readDirectoryAsync(
-          '../hello/world', {}));
-        await throws(() => NativeModules.ExponentFileSystem.downloadAsync(
-          'http://www.google.com', '../hello/world', {}));
-      }
-    );
+      await throws(() => FS.getInfoAsync('../hello/world', {}));
+      await throws(() => FS.readAsStringAsync('../hello/world', {}));
+      await throws(() => FS.writeAsStringAsync('../hello/world', '', {}));
+      await throws(() => FS.deleteAsync('../hello/world', {}));
+      await throws(() => FS.moveAsync({ from: '../a/b', to: 'c' }));
+      await throws(() => FS.moveAsync({ from: 'c', to: '../a/b' }));
+      await throws(() => FS.copyAsync({ from: '../a/b', to: 'c' }));
+      await throws(() => FS.copyAsync({ from: 'c', to: '../a/b' }));
+      await throws(() => FS.makeDirectoryAsync('../hello/world', {}));
+      await throws(() => FS.readDirectoryAsync('../hello/world', {}));
+      await throws(() =>
+        FS.downloadAsync('http://www.google.com', '../hello/world', {})
+      );
+    });
   });
 }
