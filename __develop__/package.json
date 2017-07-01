@@ -12,7 +12,7 @@
     "expo": "16.0.0",
     "immutable": "^3.8.1",
     "jasmine-core": "^2.4.1",
-    "react": "16.0.0-alpha.6",
-    "react-native": "https://github.com/expo/react-native#sdk-16"
+    "react": "16.0.0-alpha.12",
+    "react-native": "expo/react-native#sdk-18"
   }
 }
