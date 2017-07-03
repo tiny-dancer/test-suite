@@ -50,12 +50,11 @@ export function test(t) {
             const asset = Asset.fromModule(module);
             await asset.downloadAsync();
 
-            const cachePath = `ExponentAsset-${asset.hash}.${asset.type}`;
             const {
               exists,
               md5,
               uri: cacheUri,
-            } = await NativeModules.ExponentFileSystem.getInfoAsync(cachePath, {
+            } = await NativeModules.ExponentFileSystem.getInfoAsync(asset.localUri, {
               cache: true,
               md5: true,
             });
