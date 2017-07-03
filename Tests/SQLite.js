@@ -59,7 +59,7 @@ export function test(t) {
         exists,
         uri: dbFileUri,
       } = await NativeModules.ExponentFileSystem.getInfoAsync(
-        'SQLite/test.db',
+        `${NativeModules.ExponentFileSystem.documentDirectory}SQLite/test.db`,
         {}
       );
       t.expect(exists).toBeTruthy();
