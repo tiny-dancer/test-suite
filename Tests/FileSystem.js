@@ -245,7 +245,9 @@ export function test(t) {
 
     t.it(
       'delete(dir, idempotent) -> make tree -> check contents ' +
-        '-> check directory listings',
+      '-> check directory listings' +
+      '-> move -> check directory listings' +
+      '-> copy -> check directory listings',
       async () => {
         let error;
         const dir = FS.documentDirectory + 'dir';
@@ -283,17 +285,29 @@ export function test(t) {
           t.expect(list.sort()).toEqual(expected.sort());
         };
 
-        await checkDirectory(dir, ['file1', 'file2', 'child1', 'child2']);
-        await checkDirectory(dir + '/child1', ['file3']);
-        await checkDirectory(dir + '/child2', ['file4', 'file5']);
+        const checkRoot = async (root) => {
+          await checkDirectory(root, ['file1', 'file2', 'child1', 'child2']);
+          await checkDirectory(root + '/child1', ['file3']);
+          await checkDirectory(root + '/child2', ['file4', 'file5']);
 
-        error = null;
-        try {
-          await checkDirectory(dir + '/file1', ['nope']);
-        } catch (e) {
-          error = e;
+          error = null;
+          try {
+            await checkDirectory(root + '/file1', ['nope']);
+          } catch (e) {
+            error = e;
+          }
+          t.expect(error).toBeTruthy();
         }
-        t.expect(error).toBeTruthy();
+
+        await checkRoot(dir);
+
+        await FS.moveAsync({ from: dir, to: FS.documentDirectory + 'moved' });
+        await checkRoot(FS.documentDirectory + 'moved');
+        await FS.copyAsync({
+          from: FS.documentDirectory + 'moved',
+          to: FS.documentDirectory + 'copied',
+        });
+        await checkRoot(FS.documentDirectory + 'copied');
       }
     );
 
