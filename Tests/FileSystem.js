@@ -10,10 +10,11 @@ export function test(t) {
       'delete(idempotent) -> !exists -> download(md5, uri) -> exists ' +
         '-> delete -> !exists',
       async () => {
-        const filename = 'download1.png';
+        const localUri = FS.documentDirectory + 'download1.png';
+        console.log(localUri);
 
         const assertExists = async expectedToExist => {
-          let { exists } = await FS.getInfoAsync(filename, {});
+          let { exists } = await FS.getInfoAsync(localUri, {});
           if (expectedToExist) {
             t.expect(exists).toBeTruthy();
           } else {
@@ -21,7 +22,7 @@ export function test(t) {
           }
         };
 
-        await FS.deleteAsync(filename, {
+        await FS.deleteAsync(localUri, {
           idempotent: true,
         });
         await assertExists(false);
@@ -31,30 +32,28 @@ export function test(t) {
           uri,
         } = await FS.downloadAsync(
           'https://s3-us-west-1.amazonaws.com/test-suite-data/avatar2.png',
-          filename,
+          localUri,
           { md5: true }
         );
         t.expect(md5).toBe('1e02045c10b8f1145edc7c8375998f87');
-        // NOTE: Is the below a sensible invariant to check?
-        t.expect(uri.slice(-filename.length)).toBe(filename);
         await assertExists(true);
 
-        await FS.deleteAsync(filename, {});
+        await FS.deleteAsync(localUri, {});
         await assertExists(false);
       },
       9000
     );
 
     t.it('delete(idempotent) -> delete[error]', async () => {
-      const filename = 'willDelete.png';
+      const localUri = FS.documentDirectory + 'willDelete.png';
 
-      await FS.deleteAsync(filename, {
+      await FS.deleteAsync(localUri, {
         idempotent: true,
       });
 
       let error;
       try {
-        await FS.deleteAsync(filename, {});
+        await FS.deleteAsync(localUri, {});
       } catch (e) {
         error = e;
       }
@@ -64,28 +63,28 @@ export function test(t) {
     t.it(
       'download(md5, uri) -> read -> delete -> !exists -> read[error]',
       async () => {
-        const filename = 'download1.txt';
+        const localUri = FS.documentDirectory + 'download1.txt';
 
         const {
           md5,
           uri,
         } = await FS.downloadAsync(
           'https://s3-us-west-1.amazonaws.com/test-suite-data/text-file.txt',
-          filename,
+          localUri,
           { md5: true }
         );
         t.expect(md5).toBe('86d73d2f11e507365f7ea8e7ec3cc4cb');
 
-        const string = await FS.readAsStringAsync(filename, {});
+        const string = await FS.readAsStringAsync(localUri, {});
         t.expect(string).toBe('hello, world\nthis is a test file\n');
 
-        await FS.deleteAsync(filename, {
+        await FS.deleteAsync(localUri, {
           idempotent: true,
         });
 
         let error;
         try {
-          await FS.readAsStringAsync(filename, {});
+          await FS.readAsStringAsync(localUri, {});
         } catch (e) {
           error = e;
         }
@@ -97,18 +96,18 @@ export function test(t) {
     t.it(
       'delete(idempotent) -> !exists -> write -> read -> write -> read',
       async () => {
-        const filename = 'write1.txt';
+        const localUri = FS.documentDirectory + 'write1.txt';
 
-        await FS.deleteAsync(filename, {
+        await FS.deleteAsync(localUri, {
           idempotent: true,
         });
 
-        const { exists } = await FS.getInfoAsync(filename, {});
+        const { exists } = await FS.getInfoAsync(localUri, {});
         t.expect(exists).not.toBeTruthy();
 
         const writeAndVerify = async expected => {
-          await FS.writeAsStringAsync(filename, expected, {});
-          const string = await FS.readAsStringAsync(filename, {});
+          await FS.writeAsStringAsync(localUri, expected, {});
+          const string = await FS.readAsStringAsync(localUri, {});
           t.expect(string).toBe(expected);
         };
 
@@ -120,8 +119,8 @@ export function test(t) {
     t.it(
       'delete(new) -> 2 * [write -> move -> !exists(orig) -> read(new)]',
       async () => {
-        const from = 'from.txt';
-        const to = 'to.txt';
+        const from = FS.documentDirectory + 'from.txt';
+        const to = FS.documentDirectory + 'to.txt';
         const contents = ['contents 1', 'contents 2'];
 
         await FS.deleteAsync(to, {
@@ -145,8 +144,8 @@ export function test(t) {
     t.it(
       'delete(new) -> 2 * [write -> copy -> exists(orig) -> read(new)]',
       async () => {
-        const from = 'from.txt';
-        const to = 'to.txt';
+        const from = FS.documentDirectory + 'from.txt';
+        const to = FS.documentDirectory + 'to.txt';
         const contents = ['contents 1', 'contents 2'];
 
         await FS.deleteAsync(to, {
@@ -172,8 +171,8 @@ export function test(t) {
         'mkdir(dir)[error] -> write(dir/file) -> read',
       async () => {
         let error;
-        const path = 'dir/file';
-        const dir = 'dir';
+        const path = FS.documentDirectory + 'dir/file';
+        const dir = FS.documentDirectory + 'dir';
         const contents = 'hello, world';
 
         await FS.deleteAsync(dir, {
@@ -210,11 +209,11 @@ export function test(t) {
         'mkdir(dir/dir2, intermediates) -> write(dir/dir2/file) -> read',
       async () => {
         let error;
-        const path = 'dir/dir2/file';
-        const dir = 'dir/dir2';
+        const path = FS.documentDirectory + 'dir/dir2/file';
+        const dir = FS.documentDirectory + 'dir/dir2';
         const contents = 'hello, world';
 
-        await FS.deleteAsync('dir', {
+        await FS.deleteAsync(FS.documentDirectory + 'dir', {
           idempotent: true,
         });
 
@@ -249,47 +248,48 @@ export function test(t) {
         '-> check directory listings',
       async () => {
         let error;
+        const dir = FS.documentDirectory + 'dir';
 
-        await FS.deleteAsync('dir', {
+        await FS.deleteAsync(dir, {
           idempotent: true,
         });
 
-        await FS.makeDirectoryAsync('dir/child1', {
+        await FS.makeDirectoryAsync(dir + '/child1', {
           intermediates: true,
         });
-        await FS.makeDirectoryAsync('dir/child2', {
+        await FS.makeDirectoryAsync(dir + '/child2', {
           intermediates: true,
         });
 
-        await FS.writeAsStringAsync('dir/file1', 'contents1', {});
-        await FS.writeAsStringAsync('dir/file2', 'contents2', {});
+        await FS.writeAsStringAsync(dir + '/file1', 'contents1', {});
+        await FS.writeAsStringAsync(dir + '/file2', 'contents2', {});
 
-        await FS.writeAsStringAsync('dir/child1/file3', 'contents3', {});
+        await FS.writeAsStringAsync(dir + '/child1/file3', 'contents3', {});
 
-        await FS.writeAsStringAsync('dir/child2/file4', 'contents4', {});
-        await FS.writeAsStringAsync('dir/child2/file5', 'contents5', {});
+        await FS.writeAsStringAsync(dir + '/child2/file4', 'contents4', {});
+        await FS.writeAsStringAsync(dir + '/child2/file5', 'contents5', {});
 
         const checkContents = async (path, contents) =>
           t.expect(await FS.readAsStringAsync(path, {})).toBe(contents);
 
-        await checkContents('dir/file1', 'contents1');
-        await checkContents('dir/file2', 'contents2');
-        await checkContents('dir/child1/file3', 'contents3');
-        await checkContents('dir/child2/file4', 'contents4');
-        await checkContents('dir/child2/file5', 'contents5');
+        await checkContents(dir + '/file1', 'contents1');
+        await checkContents(dir + '/file2', 'contents2');
+        await checkContents(dir + '/child1/file3', 'contents3');
+        await checkContents(dir + '/child2/file4', 'contents4');
+        await checkContents(dir + '/child2/file5', 'contents5');
 
         const checkDirectory = async (path, expected) => {
           const list = await FS.readDirectoryAsync(path, {});
           t.expect(list.sort()).toEqual(expected.sort());
         };
 
-        await checkDirectory('dir', ['file1', 'file2', 'child1', 'child2']);
-        await checkDirectory('dir/child1', ['file3']);
-        await checkDirectory('dir/child2', ['file4', 'file5']);
+        await checkDirectory(dir, ['file1', 'file2', 'child1', 'child2']);
+        await checkDirectory(dir + '/child1', ['file3']);
+        await checkDirectory(dir + '/child2', ['file4', 'file5']);
 
         error = null;
         try {
-          await checkDirectory('dir/file1', ['nope']);
+          await checkDirectory(dir + '/file1', ['nope']);
         } catch (e) {
           error = e;
         }
@@ -300,9 +300,9 @@ export function test(t) {
     t.it(
       'delete(idempotent) -> download(md5) -> getInfo(size)',
       async () => {
-        const filename = 'download1.png';
+        const localUri = FS.documentDirectory + 'download1.png';
 
-        await FS.deleteAsync(filename, {
+        await FS.deleteAsync(localUri, {
           idempotent: true,
         });
 
@@ -310,18 +310,18 @@ export function test(t) {
           md5,
         } = await FS.downloadAsync(
           'https://s3-us-west-1.amazonaws.com/test-suite-data/avatar2.png',
-          filename,
+          localUri,
           { md5: true }
         );
         t.expect(md5).toBe('1e02045c10b8f1145edc7c8375998f87');
 
-        const { size, modificationTime } = await FS.getInfoAsync(filename, {});
+        const { size, modificationTime } = await FS.getInfoAsync(localUri, {});
         t.expect(size).toBe(3230);
         const nowTime = 0.001 * new Date().getTime();
         t.expect(nowTime - modificationTime).toBeLessThan(3600);
         console.log(nowTime - modificationTime);
 
-        await FS.deleteAsync(filename, {});
+        await FS.deleteAsync(localUri, {});
       },
       9000
     );
@@ -337,18 +337,20 @@ export function test(t) {
         t.expect(error).toBeTruthy();
       };
 
-      await throws(() => FS.getInfoAsync('../hello/world', {}));
-      await throws(() => FS.readAsStringAsync('../hello/world', {}));
-      await throws(() => FS.writeAsStringAsync('../hello/world', '', {}));
-      await throws(() => FS.deleteAsync('../hello/world', {}));
-      await throws(() => FS.moveAsync({ from: '../a/b', to: 'c' }));
-      await throws(() => FS.moveAsync({ from: 'c', to: '../a/b' }));
-      await throws(() => FS.copyAsync({ from: '../a/b', to: 'c' }));
-      await throws(() => FS.copyAsync({ from: 'c', to: '../a/b' }));
-      await throws(() => FS.makeDirectoryAsync('../hello/world', {}));
-      await throws(() => FS.readDirectoryAsync('../hello/world', {}));
+      const p = FS.documentDirectory;
+
+      await throws(() => FS.getInfoAsync(p + '../hello/world', {}));
+      await throws(() => FS.readAsStringAsync(p + '../hello/world', {}));
+      await throws(() => FS.writeAsStringAsync(p + '../hello/world', '', {}));
+      await throws(() => FS.deleteAsync(p + '../hello/world', {}));
+      await throws(() => FS.moveAsync({ from: p + '../a/b', to: 'c' }));
+      await throws(() => FS.moveAsync({ from: 'c', to: p + '../a/b' }));
+      await throws(() => FS.copyAsync({ from: p + '../a/b', to: 'c' }));
+      await throws(() => FS.copyAsync({ from: 'c', to: p + '../a/b' }));
+      await throws(() => FS.makeDirectoryAsync(p + '../hello/world', {}));
+      await throws(() => FS.readDirectoryAsync(p + '../hello/world', {}));
       await throws(() =>
-        FS.downloadAsync('http://www.google.com', '../hello/world', {})
+        FS.downloadAsync('http://www.google.com', p + '../hello/world', {})
       );
     });
   });
