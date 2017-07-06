@@ -5,7 +5,7 @@ export const name = 'FileSystem';
 import { FileSystem as FS } from 'expo';
 
 export function test(t) {
-  t.fdescribe('FileSystem', () => {
+  t.describe('FileSystem', () => {
     t.it(
       'delete(idempotent) -> !exists -> download(md5, uri) -> exists ' +
         '-> delete -> !exists',
