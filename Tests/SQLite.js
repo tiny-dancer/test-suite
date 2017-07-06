@@ -2,7 +2,7 @@
 
 import { NativeModules } from 'react-native';
 
-import { SQLite } from 'expo';
+import { SQLite, FileSystem as FS, Asset } from 'expo';
 
 export const name = 'SQLite';
 
@@ -55,14 +55,33 @@ export function test(t) {
         });
       });
 
-      const {
-        exists,
-        uri: dbFileUri,
-      } = await NativeModules.ExponentFileSystem.getInfoAsync(
-        `${NativeModules.ExponentFileSystem.documentDirectory}SQLite/test.db`,
-        {}
-      );
+      const { exists } = await FS.getInfoAsync(`${FS.documentDirectory}SQLite/test.db`);
       t.expect(exists).toBeTruthy();
+    });
+
+    t.it('should work with a downloaded .db file', async () => {
+      await FS.downloadAsync(
+        Asset.fromModule(require('../Assets/asset-db.db')).uri,
+        `${FS.documentDirectory}SQLite/downloaded.db`
+      );
+
+      const db = SQLite.openDatabase({ name: 'downloaded.db' });
+      await new Promise((resolve, reject) => {
+        db.transaction(tx => {
+          const nop = () => {};
+          const onError = (tx, error) => reject(error);
+          tx.executeSql(
+            'SELECT * FROM Users',
+            [],
+            (tx, results) => {
+              t.expect(results.rows.length).toEqual(3);
+              t.expect(results.rows._array[0].j).toBeCloseTo(23.4);
+              resolve();
+            },
+            onError
+          );
+        });
+      });
     });
   });
 }
