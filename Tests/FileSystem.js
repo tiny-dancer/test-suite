@@ -283,6 +283,7 @@ export function test(t) {
 
         await checkRoot(dir);
 
+        await FS.deleteAsync(FS.documentDirectory + 'moved', { idempotent: true });
         await FS.moveAsync({ from: dir, to: FS.documentDirectory + 'moved' });
         await checkRoot(FS.documentDirectory + 'moved');
         await FS.copyAsync({
