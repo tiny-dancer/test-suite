@@ -32,7 +32,18 @@ export async function ios(Log, { root, ['ios-sim-app-url']: iosSimAppUrl }) {
       type: 'raw',
       stream: {
         write: chunk => {
-          if (chunk.msg.indexOf('<END>   Initializing Packager') >= 0) {
+          if (chunk.tag !== 'packager') {
+            return;
+          }
+
+          let payload;
+          try {
+            payload = JSON.parse(chunk.msg);
+          } catch (e) {
+            return;
+          }
+
+          if (payload.type === 'initialize_packager_done') {
             resolve();
           }
         },

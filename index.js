@@ -2,7 +2,6 @@
 
 import React from 'react';
 import {
-  Image,
   Dimensions,
   Linking,
   NativeModules,
@@ -18,19 +17,21 @@ let { ExponentTest } = NativeModules;
 
 // List of all modules for tests. Each file path must be statically present for
 // the packager to pick them all up.
-const testModules = [
-  // require('./Tests/Basic1'),
-  // require('./Tests/Basic2'),
-  require('./Tests/Import1'),
-  require('./Tests/Import2'),
-  require('./Tests/Import3'),
-  require('./Tests/Asset'),
-  require('./Tests/Constants'),
-  require('./Tests/Contacts'),
-  require('./Tests/Location'),
-  require('./Tests/SQLite'),
-  require('./Tests/FileSystem'),
-];
+function getTestModules() {
+  return [
+    // require('./Tests/Basic1'),
+    // require('./Tests/Basic2'),
+    require('./Tests/Import1'),
+    require('./Tests/Import2'),
+    require('./Tests/Import3'),
+    require('./Tests/Asset'),
+    require('./Tests/Constants'),
+    require('./Tests/Contacts'),
+    require('./Tests/Location'),
+    require('./Tests/SQLite'),
+    require('./Tests/FileSystem'),
+  ];
+}
 
 class App extends React.Component {
   // --- Lifecycle -------------------------------------------------------------
@@ -63,7 +64,7 @@ class App extends React.Component {
     const { jasmineEnv, jasmine } = await this._setupJasmine();
 
     // Load tests, confining to the ones named in the uri
-    let modules = testModules;
+    let modules = getTestModules();
     if (uri && uri.indexOf(Expo.Constants.linkingUri) === 0) {
       const deepLink = uri.substring(Expo.Constants.linkingUri.length);
       const regex = new RegExp(deepLink);

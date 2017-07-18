@@ -5,7 +5,6 @@
   "version": "1.0.0",
   "sdkVersion": "UNVERSIONED",
   "packagerOpts": {
-    "assetExts": ["ttf", "mp4", "db"],
-    "config": "./rn-cli.config.js"
+    "assetExts": ["ttf", "mp4", "db"]
   }
 }
