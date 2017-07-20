@@ -63,7 +63,7 @@ export function test(t) {
 
     t.it('should work with a downloaded .db file', async () => {
       await FS.downloadAsync(
-        Asset.fromModule(require('../Assets/asset-db.db')).uri,
+        Asset.fromModule(require('../assets/asset-db.db')).uri,
         `${FS.documentDirectory}SQLite/downloaded.db`
       );
 
