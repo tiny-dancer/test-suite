@@ -19,17 +19,17 @@ let { ExponentTest } = NativeModules;
 // the packager to pick them all up.
 function getTestModules() {
   return [
-    // require('./Tests/Basic1'),
-    // require('./Tests/Basic2'),
-    require('./Tests/Import1'),
-    require('./Tests/Import2'),
-    require('./Tests/Import3'),
-    require('./Tests/Asset'),
-    require('./Tests/Constants'),
-    require('./Tests/Contacts'),
-    require('./Tests/Location'),
-    require('./Tests/SQLite'),
-    require('./Tests/FileSystem'),
+    // require('./tests/Basic1'),
+    // require('./tests/Basic2'),
+    require('./tests/Import1'),
+    require('./tests/Import2'),
+    require('./tests/Import3'),
+    require('./tests/Asset'),
+    require('./tests/Constants'),
+    require('./tests/Contacts'),
+    require('./tests/Location'),
+    require('./tests/SQLite'),
+    require('./tests/FileSystem'),
   ];
 }
 

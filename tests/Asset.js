@@ -10,7 +10,7 @@ export function test(t) {
   t.describe('Asset', () => {
     [
       {
-        module: require('../Assets/black-128x256.png'),
+        module: require('../assets/black-128x256.png'),
         name: 'black-128x256',
         type: 'png',
         hash: '4e3911b395b3cc00e737be94c7ed49bb',
@@ -18,7 +18,7 @@ export function test(t) {
         height: 256,
       },
       {
-        module: require('../Assets/comic.ttf'),
+        module: require('../assets/comic.ttf'),
         name: 'comic',
         type: 'ttf',
         hash: '69d77ab5cba970d7934a5f5bcd8fdd11',
