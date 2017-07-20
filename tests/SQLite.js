@@ -55,7 +55,9 @@ export function test(t) {
         });
       });
 
-      const { exists } = await FS.getInfoAsync(`${FS.documentDirectory}SQLite/test.db`);
+      const { exists } = await FS.getInfoAsync(
+        `${FS.documentDirectory}SQLite/test.db`
+      );
       t.expect(exists).toBeTruthy();
     });
 

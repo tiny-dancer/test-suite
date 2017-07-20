@@ -54,10 +54,13 @@ export function test(t) {
               exists,
               md5,
               uri: cacheUri,
-            } = await NativeModules.ExponentFileSystem.getInfoAsync(asset.localUri, {
-              cache: true,
-              md5: true,
-            });
+            } = await NativeModules.ExponentFileSystem.getInfoAsync(
+              asset.localUri,
+              {
+                cache: true,
+                md5: true,
+              }
+            );
 
             t.expect(exists).toBeTruthy();
             t.expect(md5).toBe(asset.hash);

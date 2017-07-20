@@ -1,9 +1,5 @@
-import 'instapromise';
-
 import path from 'path';
-
-import request from 'request';
-import spawnAsync from '@exponent/spawn-async';
+import request from 'request-promise-native';
 
 import { User, ProjectUtils, Project, ProjectSettings, Simulator } from 'xdl';
 
@@ -13,8 +9,11 @@ const XDL_LOGIN_USERPASS = {
   password: 'imabot2017',
 };
 
-export async function ios(Log, { root, ['ios-sim-app-url']: iosSimAppUrl }) {
-  const testSuitePath = path.resolve(root || '.');
+export async function ios(
+  Log,
+  { root = '.', 'ios-sim-app-url': iosSimAppUrl }
+) {
+  const testSuitePath = path.resolve(root);
 
   Log.collapsed('log in as exponent_ci_bot');
   await User.initialize(XDL_CLIENT_ID);
@@ -56,10 +55,10 @@ export async function ios(Log, { root, ['ios-sim-app-url']: iosSimAppUrl }) {
   Log.collapsed('get url');
   const settings = await ProjectSettings.readPackagerInfoAsync(testSuitePath);
   const url = `exp://localhost:${settings.expoServerPort}`;
-  console.log(`Url is ${url}`);
+  console.log(`URL is ${url}`);
 
   Log.collapsed('sanity check manifest');
-  const manifestResponse = await request.promise.get({
+  const manifestResponse = await request.get({
     url: url.replace(/^exp/, 'http'),
   });
   const manifest = JSON.parse(manifestResponse.body);
