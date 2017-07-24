@@ -11,7 +11,6 @@ export function test(t) {
         '-> delete -> !exists',
       async () => {
         const localUri = FS.documentDirectory + 'download1.png';
-        console.log(localUri);
 
         const assertExists = async expectedToExist => {
           let { exists } = await FS.getInfoAsync(localUri);
@@ -28,6 +27,7 @@ export function test(t) {
         const {
           md5,
           uri,
+          headers,
         } = await FS.downloadAsync(
           'https://s3-us-west-1.amazonaws.com/test-suite-data/avatar2.png',
           localUri,
@@ -35,6 +35,7 @@ export function test(t) {
         );
         t.expect(md5).toBe('1e02045c10b8f1145edc7c8375998f87');
         await assertExists(true);
+        t.expect(headers['Content-Type']).toBe('image/png');
 
         await FS.deleteAsync(localUri);
         await assertExists(false);
@@ -316,7 +317,6 @@ export function test(t) {
         t.expect(size).toBe(3230);
         const nowTime = 0.001 * new Date().getTime();
         t.expect(nowTime - modificationTime).toBeLessThan(3600);
-        console.log(nowTime - modificationTime);
 
         await FS.deleteAsync(localUri);
       },
@@ -350,5 +350,78 @@ export function test(t) {
         FS.downloadAsync('http://www.google.com', p + '../hello/world')
       );
     });
+
+    t.it(
+      'download(network failure)',
+      async () => {
+        const localUri = FS.documentDirectory + 'download1.png';
+
+        const assertExists = async expectedToExist => {
+          let { exists } = await FS.getInfoAsync(localUri);
+          if (expectedToExist) {
+            t.expect(exists).toBeTruthy();
+          } else {
+            t.expect(exists).not.toBeTruthy();
+          }
+        };
+
+        await FS.deleteAsync(localUri, { idempotent: true });
+        await assertExists(false);
+
+        let error;
+        try {
+          const {
+            md5,
+            uri,
+          } = await FS.downloadAsync(
+            'https://nonexistent-subdomain.expo.io',
+            localUri,
+            { md5: true }
+          );
+        } catch (e) {
+          error = e;
+        }
+        t.expect(error).toBeTruthy();
+        await assertExists(false);
+        await FS.deleteAsync(localUri, { idempotent: true });
+      },
+      9000
+    );
+
+    t.it(
+      'download(404)',
+      async () => {
+        const localUri = FS.documentDirectory + 'download1.png';
+
+        const assertExists = async expectedToExist => {
+          let { exists } = await FS.getInfoAsync(localUri);
+          if (expectedToExist) {
+            t.expect(exists).toBeTruthy();
+          } else {
+            t.expect(exists).not.toBeTruthy();
+          }
+        };
+
+        await FS.deleteAsync(localUri, { idempotent: true });
+        await assertExists(false);
+
+        const {
+          md5,
+          uri,
+          status,
+        } = await FS.downloadAsync(
+          'https://expo.io/404',
+          localUri,
+          { md5: true }
+        );
+        await assertExists(true);
+        t.expect(status).toBe(404);
+
+        await FS.deleteAsync(localUri);
+        await assertExists(false);
+      },
+      9000
+    );
+
   });
 }
