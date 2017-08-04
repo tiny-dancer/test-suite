@@ -409,11 +409,9 @@ export function test(t) {
           md5,
           uri,
           status,
-        } = await FS.downloadAsync(
-          'https://expo.io/404',
-          localUri,
-          { md5: true }
-        );
+        } = await FS.downloadAsync('https://expo.io/404', localUri, {
+          md5: true,
+        });
         await assertExists(true);
         t.expect(status).toBe(404);
 
@@ -422,6 +420,5 @@ export function test(t) {
       },
       9000
     );
-
   });
 }

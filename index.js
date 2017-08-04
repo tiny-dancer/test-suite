@@ -30,6 +30,7 @@ function getTestModules() {
     require('./tests/Location'),
     require('./tests/SQLite'),
     require('./tests/FileSystem'),
+    require('./tests/SecureStore'),
   ];
 }
 
