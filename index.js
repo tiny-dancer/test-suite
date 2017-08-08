@@ -31,6 +31,8 @@ function getTestModules() {
     require('./tests/SQLite'),
     require('./tests/FileSystem'),
     require('./tests/SecureStore'),
+    // Note: Payments.js needs to be run on an iOS simulator or iOS Real Device
+    require('./tests/Payments'),
   ];
 }
 
