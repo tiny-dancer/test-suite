@@ -21,7 +21,7 @@ const Payments = NativeModules.TPSStripeManager;
 Payments.initialize({
   // This is Jeff's publishable key.
   publishableKey: 'pk_test_YRjUHSZfJza9RsuNDx9s6e5V',
-  merchantId: 'merchant.io.expo.fakeId',
+  merchantId: 'merchant.fakeId',
 });
 
 export function test(t) {
@@ -48,6 +48,7 @@ export function test(t) {
         t.expect(token.card.isApplePayCard).toBe(false);
         t.expect(token.tokenId.charAt(0)).toBe('t');
       });
+      
       t.it(
         'suscessfully creates a token with minimum card details',
         async () => {
@@ -62,6 +63,7 @@ export function test(t) {
           t.expect(token.tokenId.charAt(0)).toBe('t');
         }
       );
+
       t.it(
         'recognizes and stores extra card details in Stripe token',
         async () => {
@@ -88,6 +90,7 @@ export function test(t) {
           t.expect(token.tokenId.charAt(0)).toBe('t');
         }
       );
+
       t.it(
         'recognizes when invalid card details are given and throws Invalid Card error',
         async () => {
@@ -115,6 +118,7 @@ export function test(t) {
           t.expect(error).toEqual(new Error("Your card's number is invalid"));
         }
       );
+
       t.it(
         'recognizes when insufficent details are given and throws Insufficent Details error',
         async () => {
@@ -135,6 +139,7 @@ export function test(t) {
         }
       );
     });
+
     t.describe('Apple Pay', () => {
       t.it('determines if a device is Apple Pay enabled', async () => {
         const doesSupportApplePay = await Payments.deviceSupportsApplePayAsync();
@@ -154,6 +159,7 @@ export function test(t) {
           t.expect(error).toEqual(new Error('Apple Pay configuration error'));
         }
       );
+
       t.it(
         'recongnizes when Apple Pay requests through the payments dialog can be completed',
         async () => {
@@ -166,6 +172,7 @@ export function test(t) {
           t.expect(error).toBeTruthy();
         }
       );
+
       t.it(
         'recongnizes when Apple Pay requests through the payments dialog can be canceled',
         async () => {
