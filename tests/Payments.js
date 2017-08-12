@@ -1,30 +1,31 @@
 /*
 Payments.js
 Jasmine tests for the tipsi-stripe payments module.
-Note: this file needs to be run on an iOS simulator or an iOS real device.
-If ran on an Android phone, DangerZone.stripe will throw an error.
-Remove this file from ../index.js if you need to run on Android.
+Note: this file needs to be run on an iOS simulator or an iOS real device. These
+tests are enabled only on iOS.
 
 Jeffrey Da, Expo Inc., July 2017
 */
 'use strict';
 
-import { NativeModules } from 'react-native';
-import { DangerZone, Contacts, Permissions } from 'expo';
-import * as TestUtils from '../TestUtils';
+import { DangerZone } from 'expo';
+import { Platform } from 'react-native';
 
 export const name = 'Payments';
-// Use the below line when expo-sdk is updated to include the Stripe module
-// const stripe = DangerZone.Stripe;
-const Payments = NativeModules.TPSStripeManager;
-
-Payments.initialize({
-  // This is Jeff's publishable key.
-  publishableKey: 'pk_test_YRjUHSZfJza9RsuNDx9s6e5V',
-  merchantId: 'merchant.fakeId',
-});
 
 export function test(t) {
+  if (Platform.OS !== 'ios') {
+    return;
+  }
+
+  const Payments = DangerZone.Payments;
+
+  Payments.initialize({
+    // This is Jeff's publishable key.
+    publishableKey: 'pk_test_YRjUHSZfJza9RsuNDx9s6e5V',
+    merchantId: 'merchant.fakeId',
+  });
+
   t.describe('Payments', () => {
     t.describe('Stripe', () => {
       t.it('suscessfully creates a token with card details', async () => {
@@ -48,7 +49,7 @@ export function test(t) {
         t.expect(token.card.isApplePayCard).toBe(false);
         t.expect(token.tokenId.charAt(0)).toBe('t');
       });
-      
+
       t.it(
         'suscessfully creates a token with minimum card details',
         async () => {
