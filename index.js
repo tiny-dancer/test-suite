@@ -31,6 +31,8 @@ function getTestModules() {
     require('./tests/SQLite'),
     require('./tests/FileSystem'),
     require('./tests/SecureStore'),
+    require('./tests/Util'),
+    require('./tests/Segment'),
     // Note: Payments.js needs to be run on an iOS simulator or iOS Real Device
     require('./tests/Payments'),
   ];
@@ -124,9 +126,8 @@ class App extends React.Component {
         if (result.status === 'passed' || result.status === 'failed') {
           // Open log group if failed
           const grouping = result.status === 'passed' ? '---' : '+++';
-          const emoji = result.status === 'passed'
-            ? ':green_heart:'
-            : ':broken_heart:';
+          const emoji =
+            result.status === 'passed' ? ':green_heart:' : ':broken_heart:';
           console.log(`${grouping} ${emoji} ${result.fullName}`);
           this._results += `${grouping} ${result.fullName}\n`;
 
@@ -284,7 +285,7 @@ class App extends React.Component {
       this._scrollViewRef.scrollTo({
         y:
           Math.max(0, contentHeight - Dimensions.get('window').height) +
-            Expo.Constants.statusBarHeight,
+          Expo.Constants.statusBarHeight,
       });
     }
   };
