@@ -18,17 +18,10 @@ export default {
     });
 
     // Pack exponent-sdk with its code in the same commit
-    Log.collapsed('Packing exponent-sdk');
-    await spawnAsync('yarn', ['pack', '--filename', expoSdkPackPath], {
+    Log.collapsed('Installing local version of exponent-sdk');
+    await spawnAsync('./install-to-directory.sh', [testSuitePath], {
       stdio: 'inherit',
       cwd: expoSdkPath,
-    });
-
-    // Install exponent-sdk from the packed package
-    Log.collapsed('Installing exponent-sdk in test-suite');
-    await spawnAsync('yarn', ['add', `file:${expoSdkPackPath}`], {
-      stdio: 'inherit',
-      cwd: testSuitePath,
     });
   },
 };
