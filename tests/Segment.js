@@ -1,7 +1,7 @@
 'use strict';
 
 import { Segment } from 'expo';
-import { Platform, NativeModules } from 'react-native';
+import { Platform } from 'react-native';
 
 export const name = 'Segment';
 
