@@ -14,9 +14,9 @@ import { Platform } from 'react-native';
 export const name = 'Payments';
 
 export function test(t) {
-  if (Platform.OS !== 'ios') {
-    return;
-  }
+  // NOTE(2017-08-30): Payments are unsupported on iOS; for now just skip all
+  // the tests
+  return;
 
   const Payments = DangerZone.Payments;
 
