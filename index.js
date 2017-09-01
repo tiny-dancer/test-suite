@@ -126,8 +126,9 @@ class App extends React.Component {
         if (result.status === 'passed' || result.status === 'failed') {
           // Open log group if failed
           const grouping = result.status === 'passed' ? '---' : '+++';
-          const emoji =
-            result.status === 'passed' ? ':green_heart:' : ':broken_heart:';
+          const emoji = result.status === 'passed'
+            ? ':green_heart:'
+            : ':broken_heart:';
           console.log(`${grouping} ${emoji} ${result.fullName}`);
           this._results += `${grouping} ${result.fullName}\n`;
 
@@ -242,7 +243,7 @@ class App extends React.Component {
           }[status],
           borderLeftWidth: 3,
         }}>
-        <Text style={{ fontSize: 18 }}>
+        <Text style={{ fontSize: 16 }}>
           {
             {
               running: '😮 ',
@@ -260,23 +261,25 @@ class App extends React.Component {
       </View>
     );
   };
-  _renderSuiteResult = r => {
+  _renderSuiteResult = (r, depth) => {
+    const titleStyle = depth == 0
+      ? { marginBottom: 8, fontSize: 16, fontWeight: 'bold' }
+      : { marginVertical: 8, fontSize: 16 };
+    const containerStyle = depth == 0
+      ? {
+          paddingLeft: 16,
+          paddingVertical: 16,
+          borderBottomWidth: 1,
+          borderColor: '#ddd',
+        }
+      : { paddingLeft: 16 };
     return (
-      <View
-        key={r.get('result').get('id')}
-        style={{
-          paddingLeft: 10,
-          borderColor: '#000',
-          borderLeftWidth: 3,
-        }}>
-        <Text
-          style={{
-            fontSize: 20,
-          }}>
+      <View key={r.get('result').get('id')} style={containerStyle}>
+        <Text style={titleStyle}>
           {r.get('result').get('description')}
         </Text>
         {r.get('specs').map(this._renderSpecResult)}
-        {r.get('children').map(this._renderSuiteResult)}
+        {r.get('children').map(r => this._renderSuiteResult(r, depth + 1))}
       </View>
     );
   };
@@ -285,7 +288,7 @@ class App extends React.Component {
       this._scrollViewRef.scrollTo({
         y:
           Math.max(0, contentHeight - Dimensions.get('window').height) +
-          Expo.Constants.statusBarHeight,
+            Expo.Constants.statusBarHeight,
       });
     }
   };
@@ -308,7 +311,9 @@ class App extends React.Component {
           }}
           ref={ref => (this._scrollViewRef = ref)}
           onContentSizeChange={this._onScrollViewContentSizeChange}>
-          {this.state.state.get('suites').map(this._renderSuiteResult)}
+          {this.state.state
+            .get('suites')
+            .map(r => this._renderSuiteResult(r, 0))}
         </ScrollView>
       </View>
     );
