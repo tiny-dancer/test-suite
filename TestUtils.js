@@ -22,3 +22,10 @@ export async function acceptPermissionsAndRunCommandAsync(fn) {
 
   return results[1];
 }
+
+export async function shouldSkipTestsRequiringPermissionsAsync() {
+  if (!ExponentTest || !ExponentTest.shouldSkipTestsRequiringPermissionsAsync) {
+    return NO;
+  }
+  return ExponentTest.shouldSkipTestsRequiringPermissionsAsync();
+}
