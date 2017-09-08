@@ -35,6 +35,7 @@ function getTestModules() {
     require('./tests/Segment'),
     // Note: Payments.js needs to be run on an iOS simulator or iOS Real Device
     require('./tests/Payments'),
+    require('./tests/Brightness'),
   ];
 }
 
@@ -190,10 +191,15 @@ class App extends React.Component {
       suiteDone(jasmineResult) {
         app.setState(({ state }) => ({
           state: state
-            .updateIn(state.get('path').pop().pop(), children =>
-              children.update(children.size - 1, child =>
-                child.set('result', child.get('result'))
-              )
+            .updateIn(
+              state
+                .get('path')
+                .pop()
+                .pop(),
+              children =>
+                children.update(children.size - 1, child =>
+                  child.set('result', child.get('result'))
+                )
             )
             .update('path', path => path.pop().pop()),
         }));
@@ -201,24 +207,34 @@ class App extends React.Component {
 
       specStarted(jasmineResult) {
         app.setState(({ state }) => ({
-          state: state.updateIn(state.get('path').pop().pop(), children =>
-            children.update(children.size - 1, child =>
-              child.update('specs', specs =>
-                specs.push(Immutable.fromJS(jasmineResult))
+          state: state.updateIn(
+            state
+              .get('path')
+              .pop()
+              .pop(),
+            children =>
+              children.update(children.size - 1, child =>
+                child.update('specs', specs =>
+                  specs.push(Immutable.fromJS(jasmineResult))
+                )
               )
-            )
           ),
         }));
       },
 
       specDone(jasmineResult) {
         app.setState(({ state }) => ({
-          state: state.updateIn(state.get('path').pop().pop(), children =>
-            children.update(children.size - 1, child =>
-              child.update('specs', specs =>
-                specs.set(specs.size - 1, Immutable.fromJS(jasmineResult))
+          state: state.updateIn(
+            state
+              .get('path')
+              .pop()
+              .pop(),
+            children =>
+              children.update(children.size - 1, child =>
+                child.update('specs', specs =>
+                  specs.set(specs.size - 1, Immutable.fromJS(jasmineResult))
+                )
               )
-            )
           ),
         }));
       },
@@ -253,11 +269,9 @@ class App extends React.Component {
           }
           {r.get('description')} ({status})
         </Text>
-        {r.get('failedExpectations').map((e, i) =>
-          <Text key={i}>
-            {e.get('message')}
-          </Text>
-        )}
+        {r
+          .get('failedExpectations')
+          .map((e, i) => <Text key={i}>{e.get('message')}</Text>)}
       </View>
     );
   };
