@@ -33,9 +33,9 @@ function getTestModules() {
     require('./tests/SecureStore'),
     require('./tests/Util'),
     require('./tests/Segment'),
-    // Note: Payments.js needs to be run on an iOS simulator or iOS Real Device
     require('./tests/Payments'),
     require('./tests/Brightness'),
+    require('./tests/Admob'),
   ];
 }
 
