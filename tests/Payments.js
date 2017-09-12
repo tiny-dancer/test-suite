@@ -1,8 +1,7 @@
 /*
 Payments.js
 Jasmine tests for the tipsi-stripe payments module.
-Note: this file needs to be run on an iOS simulator or an iOS real device. These
-tests are enabled only on iOS.
+Note: the Apple Pay tests in this file needs to be run on an iOS simulator or an iOS real device. Stripe tests run on both iOS and Android.
 
 Jeffrey Da, Expo Inc., July 2017
 */
@@ -17,7 +16,6 @@ export function test(t) {
   // NOTE(2017-08-30): Payments are unsupported on iOS; for now just skip all
   // the tests
   return;
-
   const Payments = DangerZone.Payments;
 
   Payments.initialize({
@@ -140,53 +138,54 @@ export function test(t) {
         }
       );
     });
+    if (Platform.OS === 'ios') {
+      t.describe('Apple Pay', () => {
+        t.it('determines if a device is Apple Pay enabled', async () => {
+          const doesSupportApplePay = await Payments.deviceSupportsApplePayAsync();
+          t.expect(doesSupportApplePay).toBe(true || false);
+        });
+        t.it(
+          'determines if items and options are valid, and if invalid throws Invalid Parameter exception',
+          async () => {
+            let error = null;
+            try {
+              await Payments.paymentRequestWithApplePayAsync([{}], {
+                shippingMethods: [{}],
+              });
+            } catch (e) {
+              error = e;
+            }
+            t.expect(error).toEqual(new Error('Apple Pay configuration error'));
+          }
+        );
 
-    t.describe('Apple Pay', () => {
-      t.it('determines if a device is Apple Pay enabled', async () => {
-        const doesSupportApplePay = await Payments.deviceSupportsApplePayAsync();
-        t.expect(doesSupportApplePay).toBe(true || false);
+        t.it(
+          'recongnizes when Apple Pay requests through the payments dialog can be completed',
+          async () => {
+            let error = null;
+            try {
+              await completeApplePayRequestAsync();
+            } catch (e) {
+              error = e;
+            }
+            t.expect(error).toBeTruthy();
+          }
+        );
+
+        t.it(
+          'recongnizes when Apple Pay requests through the payments dialog can be canceled',
+          async () => {
+            let error = null;
+            try {
+              await cancelApplePayRequestAsync();
+            } catch (e) {
+              error = e;
+            }
+            console.log(error);
+            t.expect(error).toBeTruthy();
+          }
+        );
       });
-      t.it(
-        'determines if items and options are valid, and if invalid throws Invalid Parameter exception',
-        async () => {
-          let error = null;
-          try {
-            await Payments.paymentRequestWithApplePayAsync([{}], {
-              shippingMethods: [{}],
-            });
-          } catch (e) {
-            error = e;
-          }
-          t.expect(error).toEqual(new Error('Apple Pay configuration error'));
-        }
-      );
-
-      t.it(
-        'recongnizes when Apple Pay requests through the payments dialog can be completed',
-        async () => {
-          let error = null;
-          try {
-            await completeApplePayRequestAsync();
-          } catch (e) {
-            error = e;
-          }
-          t.expect(error).toBeTruthy();
-        }
-      );
-
-      t.it(
-        'recongnizes when Apple Pay requests through the payments dialog can be canceled',
-        async () => {
-          let error = null;
-          try {
-            await cancelApplePayRequestAsync();
-          } catch (e) {
-            error = e;
-          }
-          console.log(error);
-          t.expect(error).toBeTruthy();
-        }
-      );
-    });
+    }
   });
 }
