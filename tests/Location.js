@@ -189,7 +189,7 @@ export function test(t) {
         timeout
       );
     });
-
+/*
     t.describe('Location.geocodeAsync()', () => {
       const timeout = 1000;
 
@@ -258,5 +258,6 @@ export function test(t) {
         }
       );
     });
+    */
   });
 }
