@@ -23,11 +23,10 @@ export function test(t) {
 
   t.describe('All segment methods are available', () => {
     // Initialize segment for this test
-    if (Platform.OS === 'android') {
-      Segment.initializeAndroid(ANDROID_WRITE_KEY);
-    } else if (Platform.OS === 'ios') {
-      Segment.initializeIOS(IOS_WRITE_KEY);
-    }
+    Segment.initialize({
+      androidWriteKey: ANDROID_WRITE_KEY,
+      iosWriteKey: IOS_WRITE_KEY,
+    });
 
     t.it('identify(userId)', () => {
       t.expect(Segment.identify('userId')).toBe(undefined);
