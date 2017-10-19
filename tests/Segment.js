@@ -1,7 +1,6 @@
 'use strict';
 
 import { Segment } from 'expo';
-import { Platform } from 'react-native';
 
 export const name = 'Segment';
 
@@ -9,16 +8,17 @@ const ANDROID_WRITE_KEY = 'android-write-key';
 const IOS_WRITE_KEY = 'ios-write-key';
 
 export function test(t) {
-  t.describe('Initialization works', () => {
-    if (Platform.OS === 'android') {
-      t.it('Works on android', () => {
-        t.expect(Segment.initializeAndroid(ANDROID_WRITE_KEY)).toBe(undefined);
-      });
-    } else if (Platform.OS === 'ios') {
-      t.it('Works on ios', () => {
-        t.expect(Segment.initializeIOS(IOS_WRITE_KEY)).toBe(undefined);
-      });
-    }
+  t.describe('Segment initialization', () => {
+    t.it('works on all platforms', () => {
+      t
+        .expect(
+          Segment.initialize({
+            androidWriteKey: ANDROID_WRITE_KEY,
+            iosWriteKey: IOS_WRITE_KEY,
+          })
+        )
+        .toBe(undefined);
+    });
   });
 
   t.describe('All segment methods are available', () => {
