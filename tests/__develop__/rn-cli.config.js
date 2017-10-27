@@ -21,12 +21,8 @@ module.exports = {
 
   getBlacklistRE() {
     let blackListREs = [
-      new RegExp(
-        `^${rootPath}\/libraries\/.*\/node_modules\/(react-native|react)\/.*`
-      ),
-      new RegExp(
-        `^${rootPath}\/apps\/.*\/node_modules\/(react-native|react)\/.*`
-      ),
+      new RegExp(`^${rootPath}\/libraries\/.*\/node_modules\/(react-native|react)\/.*`),
+      new RegExp(`^${rootPath}\/apps\/.*\/node_modules\/(react-native|react)\/.*`),
       new RegExp(`^${rootPath}\/expo\/.*$`),
       new RegExp(`^${rootPath}\/(apps\/(?!test-suite)).*$`),
       new RegExp(`^${projectPath}\/__internal__\/package\.json`),
@@ -47,9 +43,7 @@ module.exports = {
   getTransformOptions() {
     return {
       reactNativePath: path.resolve('../../../react-native-lab/react-native'),
-      reactPath: path.resolve(
-        '../../../react-native-lab/react-native/node_modules/react'
-      ),
+      reactPath: path.resolve('../../../react-native-lab/react-native/node_modules/react'),
       expoPath: path.resolve('../../../libraries/expo-sdk'),
     };
   },

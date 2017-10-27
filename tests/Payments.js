@@ -48,47 +48,41 @@ export function test(t) {
         t.expect(token.tokenId.charAt(0)).toBe('t');
       });
 
-      t.it(
-        'suscessfully creates a token with minimum card details',
-        async () => {
-          const token = await Payments.createTokenWithCardAsync({
-            number: '4242424242424242',
-            expMonth: 11,
-            expYear: 17,
-            cvc: '223',
-          });
-          t.expect(token.card.brand).toBe('Visa');
-          t.expect(token.card.isApplePayCard).toBe(false);
-          t.expect(token.tokenId.charAt(0)).toBe('t');
-        }
-      );
+      t.it('suscessfully creates a token with minimum card details', async () => {
+        const token = await Payments.createTokenWithCardAsync({
+          number: '4242424242424242',
+          expMonth: 11,
+          expYear: 17,
+          cvc: '223',
+        });
+        t.expect(token.card.brand).toBe('Visa');
+        t.expect(token.card.isApplePayCard).toBe(false);
+        t.expect(token.tokenId.charAt(0)).toBe('t');
+      });
 
-      t.it(
-        'recognizes and stores extra card details in Stripe token',
-        async () => {
-          const token = await Payments.createTokenWithCardAsync({
-            // mandatory
-            number: '4242424242424242',
-            expMonth: 11,
-            expYear: 17,
-            cvc: '223',
-            // optional
-            name: 'Test User',
-            currency: 'usd',
-            addressLine1: '123 Test Street',
-            addressLine2: 'Apt. 5',
-            addressCity: 'Test City',
-            addressState: 'Test State',
-            addressCountry: 'Test Country',
-            addressZip: '55555',
-          });
-          t.expect(token.card.brand).toBe('Visa');
-          t.expect(token.card.isApplePayCard).toBe(false);
-          t.expect(token.card.name).toBe('Test User');
-          t.expect(token.card.currency).toBe('usd');
-          t.expect(token.tokenId.charAt(0)).toBe('t');
-        }
-      );
+      t.it('recognizes and stores extra card details in Stripe token', async () => {
+        const token = await Payments.createTokenWithCardAsync({
+          // mandatory
+          number: '4242424242424242',
+          expMonth: 11,
+          expYear: 17,
+          cvc: '223',
+          // optional
+          name: 'Test User',
+          currency: 'usd',
+          addressLine1: '123 Test Street',
+          addressLine2: 'Apt. 5',
+          addressCity: 'Test City',
+          addressState: 'Test State',
+          addressCountry: 'Test Country',
+          addressZip: '55555',
+        });
+        t.expect(token.card.brand).toBe('Visa');
+        t.expect(token.card.isApplePayCard).toBe(false);
+        t.expect(token.card.name).toBe('Test User');
+        t.expect(token.card.currency).toBe('usd');
+        t.expect(token.tokenId.charAt(0)).toBe('t');
+      });
 
       t.it(
         'recognizes when invalid card details are given and throws Invalid Card error',
@@ -132,9 +126,7 @@ export function test(t) {
           } catch (e) {
             error = e;
           }
-          t
-            .expect(error)
-            .toEqual(new Error("Your card's expiration year is invalid"));
+          t.expect(error).toEqual(new Error("Your card's expiration year is invalid"));
         }
       );
     });

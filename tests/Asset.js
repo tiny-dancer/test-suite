@@ -25,17 +25,12 @@ export function test(t) {
       },
     ].forEach(({ module, name, type, ...more }) =>
       t.describe(`${name}.${type}`, () => {
-        t.it(
-          `has correct name, type, ${Object.keys(more).join(', ')}`,
-          async () => {
-            const asset = Asset.fromModule(module);
-            t.expect(asset.name).toBe(name);
-            t.expect(asset.type).toBe(type);
-            Object.keys(more).forEach(member =>
-              t.expect(asset[member]).toBe(more[member])
-            );
-          }
-        );
+        t.it(`has correct name, type, ${Object.keys(more).join(', ')}`, async () => {
+          const asset = Asset.fromModule(module);
+          t.expect(asset.name).toBe(name);
+          t.expect(asset.type).toBe(type);
+          Object.keys(more).forEach(member => t.expect(asset[member]).toBe(more[member]));
+        });
 
         t.it("when downloaded, has a 'file://' localUri", async () => {
           const asset = Asset.fromModule(module);
@@ -54,13 +49,10 @@ export function test(t) {
               exists,
               md5,
               uri: cacheUri,
-            } = await NativeModules.ExponentFileSystem.getInfoAsync(
-              asset.localUri,
-              {
-                cache: true,
-                md5: true,
-              }
-            );
+            } = await NativeModules.ExponentFileSystem.getInfoAsync(asset.localUri, {
+              cache: true,
+              md5: true,
+            });
 
             t.expect(exists).toBeTruthy();
             t.expect(md5).toBe(asset.hash);

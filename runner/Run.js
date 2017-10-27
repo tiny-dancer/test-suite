@@ -9,10 +9,7 @@ const XDL_LOGIN_USERPASS = {
   password: 'imabot2017',
 };
 
-export async function ios(
-  Log,
-  { root = '.', 'ios-sim-app-url': iosSimAppUrl }
-) {
+export async function ios(Log, { root = '.', 'ios-sim-app-url': iosSimAppUrl }) {
   const testSuitePath = path.resolve(root);
 
   Log.collapsed('log in as exponent_ci_bot');

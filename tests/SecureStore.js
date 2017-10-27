@@ -38,69 +38,57 @@ export function test(t) {
         done.fail(e);
       }
     });
-    t.it(
-      'Fetch the previously deleted key, expect no value error',
-      async done => {
-        try {
-          const fetchedValue = await SecureStore.getItemAsync(key, {});
-          done.fail(fetchedValue);
-        } catch (e) {
-          t.expect(e).toBeTruthy;
-        }
+    t.it('Fetch the previously deleted key, expect no value error', async done => {
+      try {
+        const fetchedValue = await SecureStore.getItemAsync(key, {});
+        done.fail(fetchedValue);
+      } catch (e) {
+        t.expect(e).toBeTruthy;
       }
-    );
+    });
   });
-  t.describe(
-    'SecureStore: store -> fetch -> delete -> fetch -> err with Options:',
-    () => {
-      t.it('Sets a value with a key and keychainService', async done => {
-        try {
-          const result = await SecureStore.setItemAsync(key, value, {
-            keychainService: 'service',
-          });
-          t.expect(result).toBe(undefined);
-        } catch (e) {
-          done.fail(e);
-        }
-      });
-      t.it(
-        'Fetch the value stored with the key and keychainService',
-        async done => {
-          try {
-            const fetchedValue = await SecureStore.getItemAsync(key, {
-              keychainService: 'service',
-            });
-            t.expect(fetchedValue).toBe(value);
-          } catch (e) {
-            done.fail(e);
-          }
-        }
-      );
-      t.it('Delete the value associated with the key', async done => {
-        try {
-          const result = await SecureStore.deleteItemAsync(key, {
-            keychainService: 'service',
-          });
-          t.expect(result).toBe(undefined);
-        } catch (e) {
-          done.fail(e);
-        }
-      });
-      t.it(
-        'Fetch the previously deleted key, expect no value error',
-        async done => {
-          try {
-            const fetchedValue = await SecureStore.getItemAsync(key, {
-              keychainService: 'service',
-            });
-            done.fail(fetchedValue);
-          } catch (e) {
-            t.expect(e).toBeTruthy;
-          }
-        }
-      );
-    }
-  );
+  t.describe('SecureStore: store -> fetch -> delete -> fetch -> err with Options:', () => {
+    t.it('Sets a value with a key and keychainService', async done => {
+      try {
+        const result = await SecureStore.setItemAsync(key, value, {
+          keychainService: 'service',
+        });
+        t.expect(result).toBe(undefined);
+      } catch (e) {
+        done.fail(e);
+      }
+    });
+    t.it('Fetch the value stored with the key and keychainService', async done => {
+      try {
+        const fetchedValue = await SecureStore.getItemAsync(key, {
+          keychainService: 'service',
+        });
+        t.expect(fetchedValue).toBe(value);
+      } catch (e) {
+        done.fail(e);
+      }
+    });
+    t.it('Delete the value associated with the key', async done => {
+      try {
+        const result = await SecureStore.deleteItemAsync(key, {
+          keychainService: 'service',
+        });
+        t.expect(result).toBe(undefined);
+      } catch (e) {
+        done.fail(e);
+      }
+    });
+    t.it('Fetch the previously deleted key, expect no value error', async done => {
+      try {
+        const fetchedValue = await SecureStore.getItemAsync(key, {
+          keychainService: 'service',
+        });
+        done.fail(fetchedValue);
+      } catch (e) {
+        t.expect(e).toBeTruthy;
+      }
+    });
+  });
   t.describe('SecureStore: store with empty key -> err:', () => {
     t.it('Sets a value with an empty key, expect error', async done => {
       try {
@@ -126,11 +114,7 @@ export function test(t) {
     () => {
       t.it('Sets a value with keychainServiceA', async done => {
         try {
-          const result = await SecureStore.setItemAsync(
-            key,
-            value,
-            optionsServiceA
-          );
+          const result = await SecureStore.setItemAsync(key, value, optionsServiceA);
           t.expect(result).toBe(undefined);
         } catch (e) {
           done.fail(e);
@@ -146,25 +130,22 @@ export function test(t) {
       });
     }
   );
-  t.describe(
-    'SecureStore: store long value, fetch long value -> Success:',
-    () => {
-      t.it('Set long value', async done => {
-        try {
-          const result = await SecureStore.setItemAsync(key, longValue);
-          t.expect(result).toBe(undefined);
-        } catch (e) {
-          done.fail(e);
-        }
-      });
-      t.it('Fetch long value', async done => {
-        try {
-          const result = await SecureStore.getItemAsync(key);
-          t.expect(result).toBe(longValue);
-        } catch (e) {
-          done.fail(e);
-        }
-      });
-    }
-  );
+  t.describe('SecureStore: store long value, fetch long value -> Success:', () => {
+    t.it('Set long value', async done => {
+      try {
+        const result = await SecureStore.setItemAsync(key, longValue);
+        t.expect(result).toBe(undefined);
+      } catch (e) {
+        done.fail(e);
+      }
+    });
+    t.it('Fetch long value', async done => {
+      try {
+        const result = await SecureStore.getItemAsync(key);
+        t.expect(result).toBe(longValue);
+      } catch (e) {
+        done.fail(e);
+      }
+    });
+  });
 }

@@ -61,33 +61,19 @@ export function test(t) {
       const testShapeOrUnauthorized = options => async () => {
         const providerStatus = await Location.getProviderStatusAsync();
         if (providerStatus.locationServicesEnabled) {
-          const {
-            status,
-          } = await TestUtils.acceptPermissionsAndRunCommandAsync(() => {
+          const { status } = await TestUtils.acceptPermissionsAndRunCommandAsync(() => {
             return Permissions.askAsync(Permissions.LOCATION);
           });
           if (status === 'granted') {
             const {
-              coords: {
-                latitude,
-                longitude,
-                altitude,
-                accuracy,
-                altitudeAccuracy,
-                heading,
-                speed,
-              },
+              coords: { latitude, longitude, altitude, accuracy, altitudeAccuracy, heading, speed },
               timestamp,
             } = await Location.getCurrentPositionAsync(options);
             t.expect(typeof latitude === 'number').toBe(true);
             t.expect(typeof longitude === 'number').toBe(true);
             t.expect(typeof altitude === 'number').toBe(true);
             t.expect(typeof accuracy === 'number').toBe(true);
-            t
-              .expect(
-                Platform.OS !== 'ios' || typeof altitudeAccuracy === 'number'
-              )
-              .toBe(true);
+            t.expect(Platform.OS !== 'ios' || typeof altitudeAccuracy === 'number').toBe(true);
             t.expect(typeof heading === 'number').toBe(true);
             t.expect(typeof speed === 'number').toBe(true);
             t.expect(typeof timestamp === 'number').toBe(true);
@@ -158,9 +144,7 @@ export function test(t) {
       const testCompass = options => async () => {
         // Disable Compass Test if in simulator
         if (Constants.isDevice) {
-          const {
-            status,
-          } = await TestUtils.acceptPermissionsAndRunCommandAsync(() => {
+          const { status } = await TestUtils.acceptPermissionsAndRunCommandAsync(() => {
             return Permissions.askAsync(Permissions.LOCATION);
           });
           if (status === 'granted') {
@@ -189,7 +173,7 @@ export function test(t) {
         timeout
       );
     });
-/*
+    /*
     t.describe('Location.geocodeAsync()', () => {
       const timeout = 1000;
 

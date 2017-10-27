@@ -7,8 +7,7 @@ import { FileSystem as FS } from 'expo';
 export function test(t) {
   t.describe('FileSystem', () => {
     t.it(
-      'delete(idempotent) -> !exists -> download(md5, uri) -> exists ' +
-        '-> delete -> !exists',
+      'delete(idempotent) -> !exists -> download(md5, uri) -> exists ' + '-> delete -> !exists',
       async () => {
         const localUri = FS.documentDirectory + 'download1.png';
 
@@ -88,72 +87,63 @@ export function test(t) {
       9000
     );
 
-    t.it(
-      'delete(idempotent) -> !exists -> write -> read -> write -> read',
-      async () => {
-        const localUri = FS.documentDirectory + 'write1.txt';
+    t.it('delete(idempotent) -> !exists -> write -> read -> write -> read', async () => {
+      const localUri = FS.documentDirectory + 'write1.txt';
 
-        await FS.deleteAsync(localUri, { idempotent: true });
+      await FS.deleteAsync(localUri, { idempotent: true });
 
-        const { exists } = await FS.getInfoAsync(localUri);
+      const { exists } = await FS.getInfoAsync(localUri);
+      t.expect(exists).not.toBeTruthy();
+
+      const writeAndVerify = async expected => {
+        await FS.writeAsStringAsync(localUri, expected);
+        const string = await FS.readAsStringAsync(localUri);
+        t.expect(string).toBe(expected);
+      };
+
+      await writeAndVerify('hello, world');
+      await writeAndVerify('hello, world!!!!!!');
+    });
+
+    t.it('delete(new) -> 2 * [write -> move -> !exists(orig) -> read(new)]', async () => {
+      const from = FS.documentDirectory + 'from.txt';
+      const to = FS.documentDirectory + 'to.txt';
+      const contents = ['contents 1', 'contents 2'];
+
+      await FS.deleteAsync(to, { idempotent: true });
+
+      // Move twice to make sure we can overwrite
+      for (let i = 0; i < 2; ++i) {
+        await FS.writeAsStringAsync(from, contents[i]);
+
+        await FS.moveAsync({ from, to });
+
+        const { exists } = await FS.getInfoAsync(from);
         t.expect(exists).not.toBeTruthy();
 
-        const writeAndVerify = async expected => {
-          await FS.writeAsStringAsync(localUri, expected);
-          const string = await FS.readAsStringAsync(localUri);
-          t.expect(string).toBe(expected);
-        };
-
-        await writeAndVerify('hello, world');
-        await writeAndVerify('hello, world!!!!!!');
+        t.expect(await FS.readAsStringAsync(to)).toBe(contents[i]);
       }
-    );
+    });
 
-    t.it(
-      'delete(new) -> 2 * [write -> move -> !exists(orig) -> read(new)]',
-      async () => {
-        const from = FS.documentDirectory + 'from.txt';
-        const to = FS.documentDirectory + 'to.txt';
-        const contents = ['contents 1', 'contents 2'];
+    t.it('delete(new) -> 2 * [write -> copy -> exists(orig) -> read(new)]', async () => {
+      const from = FS.documentDirectory + 'from.txt';
+      const to = FS.documentDirectory + 'to.txt';
+      const contents = ['contents 1', 'contents 2'];
 
-        await FS.deleteAsync(to, { idempotent: true });
+      await FS.deleteAsync(to, { idempotent: true });
 
-        // Move twice to make sure we can overwrite
-        for (let i = 0; i < 2; ++i) {
-          await FS.writeAsStringAsync(from, contents[i]);
+      // Copy twice to make sure we can overwrite
+      for (let i = 0; i < 2; ++i) {
+        await FS.writeAsStringAsync(from, contents[i]);
 
-          await FS.moveAsync({ from, to });
+        await FS.copyAsync({ from, to });
 
-          const { exists } = await FS.getInfoAsync(from);
-          t.expect(exists).not.toBeTruthy();
+        const { exists } = await FS.getInfoAsync(from);
+        t.expect(exists).toBeTruthy();
 
-          t.expect(await FS.readAsStringAsync(to)).toBe(contents[i]);
-        }
+        t.expect(await FS.readAsStringAsync(to)).toBe(contents[i]);
       }
-    );
-
-    t.it(
-      'delete(new) -> 2 * [write -> copy -> exists(orig) -> read(new)]',
-      async () => {
-        const from = FS.documentDirectory + 'from.txt';
-        const to = FS.documentDirectory + 'to.txt';
-        const contents = ['contents 1', 'contents 2'];
-
-        await FS.deleteAsync(to, { idempotent: true });
-
-        // Copy twice to make sure we can overwrite
-        for (let i = 0; i < 2; ++i) {
-          await FS.writeAsStringAsync(from, contents[i]);
-
-          await FS.copyAsync({ from, to });
-
-          const { exists } = await FS.getInfoAsync(from);
-          t.expect(exists).toBeTruthy();
-
-          t.expect(await FS.readAsStringAsync(to)).toBe(contents[i]);
-        }
-      }
-    );
+    });
 
     t.it(
       'delete(dir) -> write(dir/file)[error] -> mkdir(dir) ->' +
@@ -346,9 +336,7 @@ export function test(t) {
       await throws(() => FS.copyAsync({ from: 'c', to: p + '../a/b' }));
       await throws(() => FS.makeDirectoryAsync(p + '../hello/world'));
       await throws(() => FS.readDirectoryAsync(p + '../hello/world'));
-      await throws(() =>
-        FS.downloadAsync('http://www.google.com', p + '../hello/world')
-      );
+      await throws(() => FS.downloadAsync('http://www.google.com', p + '../hello/world'));
     });
 
     t.it(
@@ -370,10 +358,7 @@ export function test(t) {
 
         let error;
         try {
-          const {
-            md5,
-            uri,
-          } = await FS.downloadAsync(
+          const { md5, uri } = await FS.downloadAsync(
             'https://nonexistent-subdomain.expo.io',
             localUri,
             { md5: true }
@@ -405,11 +390,7 @@ export function test(t) {
         await FS.deleteAsync(localUri, { idempotent: true });
         await assertExists(false);
 
-        const {
-          md5,
-          uri,
-          status,
-        } = await FS.downloadAsync('https://expo.io/404', localUri, {
+        const { md5, uri, status } = await FS.downloadAsync('https://expo.io/404', localUri, {
           md5: true,
         });
         await assertExists(true);

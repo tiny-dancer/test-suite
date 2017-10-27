@@ -1,14 +1,7 @@
 'use strict';
 
 import React from 'react';
-import {
-  Dimensions,
-  Linking,
-  NativeModules,
-  ScrollView,
-  Text,
-  View,
-} from 'react-native';
+import { Dimensions, Linking, NativeModules, ScrollView, Text, View } from 'react-native';
 import Expo from 'expo';
 import jasmineModule from 'jasmine-core/lib/jasmine-core/jasmine';
 import Immutable from 'immutable';
@@ -105,11 +98,9 @@ class App extends React.Component {
     const oldIt = jasmine.it;
     jasmine.it = (desc, fn, t) => oldIt.apply(jasmine, [desc, doneIfy(fn), t]);
     const oldXit = jasmine.xit;
-    jasmine.xit = (desc, fn, t) =>
-      oldXit.apply(jasmine, [desc, doneIfy(fn), t]);
+    jasmine.xit = (desc, fn, t) => oldXit.apply(jasmine, [desc, doneIfy(fn), t]);
     const oldFit = jasmine.fit;
-    jasmine.fit = (desc, fn, t) =>
-      oldFit.apply(jasmine, [desc, doneIfy(fn), t]);
+    jasmine.fit = (desc, fn, t) => oldFit.apply(jasmine, [desc, doneIfy(fn), t]);
 
     return {
       jasmineCore,
@@ -127,9 +118,7 @@ class App extends React.Component {
         if (result.status === 'passed' || result.status === 'failed') {
           // Open log group if failed
           const grouping = result.status === 'passed' ? '---' : '+++';
-          const emoji = result.status === 'passed'
-            ? ':green_heart:'
-            : ':broken_heart:';
+          const emoji = result.status === 'passed' ? ':green_heart:' : ':broken_heart:';
           console.log(`${grouping} ${emoji} ${result.fullName}`);
           this._results += `${grouping} ${result.fullName}\n`;
 
@@ -182,9 +171,7 @@ class App extends React.Component {
                 })
               )
             )
-            .update('path', path =>
-              path.push(state.getIn(path).size, 'children')
-            ),
+            .update('path', path => path.push(state.getIn(path).size, 'children')),
         }));
       },
 
@@ -214,9 +201,7 @@ class App extends React.Component {
               .pop(),
             children =>
               children.update(children.size - 1, child =>
-                child.update('specs', specs =>
-                  specs.push(Immutable.fromJS(jasmineResult))
-                )
+                child.update('specs', specs => specs.push(Immutable.fromJS(jasmineResult)))
               )
           ),
         }));
@@ -269,29 +254,27 @@ class App extends React.Component {
           }
           {r.get('description')} ({status})
         </Text>
-        {r
-          .get('failedExpectations')
-          .map((e, i) => <Text key={i}>{e.get('message')}</Text>)}
+        {r.get('failedExpectations').map((e, i) => <Text key={i}>{e.get('message')}</Text>)}
       </View>
     );
   };
   _renderSuiteResult = (r, depth) => {
-    const titleStyle = depth == 0
-      ? { marginBottom: 8, fontSize: 16, fontWeight: 'bold' }
-      : { marginVertical: 8, fontSize: 16 };
-    const containerStyle = depth == 0
-      ? {
-          paddingLeft: 16,
-          paddingVertical: 16,
-          borderBottomWidth: 1,
-          borderColor: '#ddd',
-        }
-      : { paddingLeft: 16 };
+    const titleStyle =
+      depth == 0
+        ? { marginBottom: 8, fontSize: 16, fontWeight: 'bold' }
+        : { marginVertical: 8, fontSize: 16 };
+    const containerStyle =
+      depth == 0
+        ? {
+            paddingLeft: 16,
+            paddingVertical: 16,
+            borderBottomWidth: 1,
+            borderColor: '#ddd',
+          }
+        : { paddingLeft: 16 };
     return (
       <View key={r.get('result').get('id')} style={containerStyle}>
-        <Text style={titleStyle}>
-          {r.get('result').get('description')}
-        </Text>
+        <Text style={titleStyle}>{r.get('result').get('description')}</Text>
         {r.get('specs').map(this._renderSpecResult)}
         {r.get('children').map(r => this._renderSuiteResult(r, depth + 1))}
       </View>
@@ -302,7 +285,7 @@ class App extends React.Component {
       this._scrollViewRef.scrollTo({
         y:
           Math.max(0, contentHeight - Dimensions.get('window').height) +
-            Expo.Constants.statusBarHeight,
+          Expo.Constants.statusBarHeight,
       });
     }
   };
@@ -325,9 +308,7 @@ class App extends React.Component {
           }}
           ref={ref => (this._scrollViewRef = ref)}
           onContentSizeChange={this._onScrollViewContentSizeChange}>
-          {this.state.state
-            .get('suites')
-            .map(r => this._renderSuiteResult(r, 0))}
+          {this.state.state.get('suites').map(r => this._renderSuiteResult(r, 0))}
         </ScrollView>
       </View>
     );

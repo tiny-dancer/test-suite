@@ -33,9 +33,7 @@ export function test(t) {
     });
 
     t.it('identifyWithTraits(userId, traits)', () => {
-      t
-        .expect(Segment.identifyWithTraits('userId', { some: 'traits' }))
-        .toBe(undefined);
+      t.expect(Segment.identifyWithTraits('userId', { some: 'traits' })).toBe(undefined);
     });
 
     t.it('reset()', () => {
@@ -47,9 +45,7 @@ export function test(t) {
     });
 
     t.it('trackWithProperties(event, properties)', () => {
-      t
-        .expect(Segment.trackWithProperties('event', { some: 'properties' }))
-        .toBe(undefined);
+      t.expect(Segment.trackWithProperties('event', { some: 'properties' })).toBe(undefined);
     });
 
     t.it('screen(screenName)', () => {
@@ -57,11 +53,7 @@ export function test(t) {
     });
 
     t.it('screenWithProperties(screenName, properties)', () => {
-      t
-        .expect(
-          Segment.screenWithProperties('screenName', { some: 'properties' })
-        )
-        .toBe(undefined);
+      t.expect(Segment.screenWithProperties('screenName', { some: 'properties' })).toBe(undefined);
     });
 
     t.it('flush()', () => {
