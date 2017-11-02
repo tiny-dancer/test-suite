@@ -3,9 +3,23 @@
 export const name = 'FileSystem';
 
 import { FileSystem as FS } from 'expo';
+import { CameraRoll } from 'react-native';
 
 export function test(t) {
-  t.describe('FileSystem', () => {
+  t.fdescribe('FileSystem', () => {
+    const throws = async run => {
+      let error = null;
+      try {
+        await run();
+      } catch (e) {
+        // Uncomment to log error message.
+        // const func = run.toString().match(/[A-Za-z]+\(/)[0].slice(0, -1);
+        // console.log(`${func}: ${e.message}`);
+        error = e;
+      }
+      t.expect(error).toBeTruthy();
+    };
+
     t.it(
       'delete(idempotent) -> !exists -> download(md5, uri) -> exists ' + '-> delete -> !exists',
       async () => {
@@ -314,22 +328,14 @@ export function test(t) {
     );
 
     t.it('throws out-of-scope exceptions', async () => {
-      const throws = async run => {
-        let error = null;
-        try {
-          await run();
-        } catch (e) {
-          error = e;
-        }
-        t.expect(error).toBeTruthy();
-      };
-
       const p = FS.documentDirectory;
 
       await throws(() => FS.getInfoAsync(p + '../hello/world'));
       await throws(() => FS.readAsStringAsync(p + '../hello/world'));
       await throws(() => FS.writeAsStringAsync(p + '../hello/world', ''));
       await throws(() => FS.deleteAsync(p + '../hello/world'));
+      await throws(() => FS.deleteAsync(p));
+      await throws(() => FS.deleteAsync(FS.cacheDirectory));
       await throws(() => FS.moveAsync({ from: p + '../a/b', to: 'c' }));
       await throws(() => FS.moveAsync({ from: 'c', to: p + '../a/b' }));
       await throws(() => FS.copyAsync({ from: p + '../a/b', to: 'c' }));
@@ -337,6 +343,55 @@ export function test(t) {
       await throws(() => FS.makeDirectoryAsync(p + '../hello/world'));
       await throws(() => FS.readDirectoryAsync(p + '../hello/world'));
       await throws(() => FS.downloadAsync('http://www.google.com', p + '../hello/world'));
+      await throws(() => FS.readDirectoryAsync(p + '../'));
+      await throws(() => FS.downloadAsync('http://www.google.com', p + '../hello/world'));
+    });
+
+    t.it('missing parameters', async () => {
+      const p = FS.documentDirectory + 'test';
+
+      await throws(() => FS.moveAsync({ from: p }));
+      await throws(() => FS.moveAsync({ to: p }));
+      await throws(() => FS.copyAsync({ from: p }));
+      await throws(() => FS.copyAsync({ to: p }));
+    });
+
+    t.it('can read root directories', async () => {
+      await FS.readDirectoryAsync(FS.documentDirectory);
+      await FS.readDirectoryAsync(FS.cacheDirectory);
+    });
+
+    t.it('can copy from `CameraRoll`, verify hash, other methods restricted', async () => {
+      await Promise.all(
+        (await CameraRoll.getPhotos({
+          first: 1,
+        })).edges.map(async ({ node: { image: { uri: cameraRollUri } } }) => {
+          const destinationUri = FS.documentDirectory + 'photo.jpg';
+
+          await throws(() => FS.readAsStringAsync(cameraRollUri));
+          await throws(() => FS.writeAsStringAsync(cameraRollUri));
+          await throws(() => FS.deleteAsync(cameraRollUri));
+          await throws(() => FS.moveAsync({ from: cameraRollUri, to: destinationUri }));
+          await throws(() => FS.copyAsync({ from: destinationUri, to: cameraRollUri }));
+          await throws(() => FS.makeDirectoryAsync(cameraRollUri));
+          await throws(() => FS.readDirectoryAsync(cameraRollUri));
+          await throws(() => FS.downloadAsync('http://www.google.com', cameraRollUri));
+
+          await FS.copyAsync({ from: cameraRollUri, to: destinationUri });
+
+          const origInfo = await FS.getInfoAsync(cameraRollUri, {
+            size: true,
+            md5: true,
+          });
+          const copyInfo = await FS.getInfoAsync(destinationUri, {
+            size: true,
+            md5: true,
+          });
+
+          t.expect(origInfo.md5).toEqual(copyInfo.md5);
+          t.expect(origInfo.size).toEqual(copyInfo.size);
+        })
+      );
     });
 
     t.it(
