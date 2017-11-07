@@ -1,7 +1,5 @@
 'use strict';
 
-import { NativeModules } from 'react-native';
-
 import { SQLite, FileSystem as FS, Asset } from 'expo';
 
 export const name = 'SQLite';
@@ -10,7 +8,7 @@ export const name = 'SQLite';
 export function test(t) {
   t.describe('SQLite', () => {
     t.it('should be able to drop + create a table, insert, query', async () => {
-      const db = SQLite.openDatabase({ name: 'test.db' });
+      const db = SQLite.openDatabase('test.db');
       await new Promise((resolve, reject) => {
         db.transaction(tx => {
           const nop = () => {};
