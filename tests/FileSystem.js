@@ -6,7 +6,7 @@ import { FileSystem as FS } from 'expo';
 import { CameraRoll } from 'react-native';
 
 export function test(t) {
-  t.fdescribe('FileSystem', () => {
+  t.describe('FileSystem', () => {
     const throws = async run => {
       let error = null;
       try {

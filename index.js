@@ -11,13 +11,14 @@ let { ExponentTest } = NativeModules;
 // List of all modules for tests. Each file path must be statically present for
 // the packager to pick them all up.
 function getTestModules() {
-  return [
+  let modules = [
     // require('./tests/Basic1'),
     // require('./tests/Basic2'),
     require('./tests/Import1'),
     require('./tests/Import2'),
     require('./tests/Import3'),
     require('./tests/Asset'),
+    require('./tests/Audio'),
     require('./tests/Constants'),
     require('./tests/Contacts'),
     require('./tests/Location'),
@@ -25,11 +26,18 @@ function getTestModules() {
     require('./tests/FileSystem'),
     require('./tests/SecureStore'),
     require('./tests/Util'),
+    require('./tests/Recording'),
     require('./tests/Segment'),
+    require('./tests/Speech'),
     require('./tests/Payments'),
     require('./tests/Brightness'),
     require('./tests/Admob'),
+    require('./tests/Video'),
   ];
+  if (Expo.Constants.isDevice) {
+    modules = modules.concat([require('./tests/Camera')]);
+  }
+  return modules;
 }
 
 class App extends React.Component {
@@ -50,11 +58,15 @@ class App extends React.Component {
   // --- Test running ----------------------------------------------------------
 
   static initialState = {
+    portalChildShouldBeVisible: false,
     state: Immutable.fromJS({
       suites: [],
       path: ['suites'], // Path to current 'children' List in state
     }),
   };
+
+  setPortalChild = testPortal => this.setState({ testPortal });
+  cleanupPortal = () => new Promise(resolve => this.setState({ testPortal: null }, resolve));
 
   async _runTests(uri) {
     // Reset results state
@@ -70,7 +82,9 @@ class App extends React.Component {
       console.log('regex:', deepLink);
       modules = modules.filter(m => regex.test(m.name));
     }
-    modules.forEach(m => m.test(jasmine));
+    modules.forEach(m =>
+      m.test(jasmine, { setPortalChild: this.setPortalChild, cleanupPortal: this.cleanupPortal })
+    );
 
     jasmineEnv.execute();
   }
@@ -208,6 +222,12 @@ class App extends React.Component {
       },
 
       specDone(jasmineResult) {
+        if (app.state.testPortal) {
+          console.warn(
+            `The test portal has not been cleaned up by \`${jasmineResult.fullName}\`. Call \`cleanupPortal\` before finishing the test.`
+          );
+        }
+
         app.setState(({ state }) => ({
           state: state.updateIn(
             state
@@ -289,6 +309,27 @@ class App extends React.Component {
       });
     }
   };
+  _renderPortal = () => {
+    const styles = {
+      top: 0,
+      left: 0,
+      right: 0,
+      bottom: 0,
+      position: 'absolute',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: 'rgb(255, 255, 255)',
+      opacity: this.state.portalChildShouldBeVisible ? 0.5 : 0,
+    };
+
+    if (this.state.testPortal) {
+      return (
+        <View style={styles} pointerEvents="none">
+          {this.state.testPortal}
+        </View>
+      );
+    }
+  };
   render() {
     return (
       <View
@@ -310,6 +351,7 @@ class App extends React.Component {
           onContentSizeChange={this._onScrollViewContentSizeChange}>
           {this.state.state.get('suites').map(r => this._renderSuiteResult(r, 0))}
         </ScrollView>
+        {this._renderPortal()}
       </View>
     );
   }
