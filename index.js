@@ -30,12 +30,11 @@ function getTestModules() {
     require('./tests/Segment'),
     require('./tests/Speech'),
     require('./tests/Payments'),
-    require('./tests/Brightness'),
     require('./tests/Admob'),
     require('./tests/Video'),
   ];
   if (Expo.Constants.isDevice) {
-    modules = modules.concat([require('./tests/Camera')]);
+    modules = modules.concat([require('./tests/Brightness'), require('./tests/Camera')]);
   }
   return modules;
 }
