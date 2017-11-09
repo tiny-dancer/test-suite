@@ -11,6 +11,7 @@ export function test(t) {
       'deviceId',
       'deviceName',
       'deviceYearClass',
+      'isDevice',
       'sessionId',
       'manifest',
       'linkingUri',
