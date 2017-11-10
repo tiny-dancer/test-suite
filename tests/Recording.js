@@ -4,6 +4,7 @@ import { Platform } from 'react-native';
 import { Audio, Permissions } from 'expo';
 import { flatten, filter, takeRight, map } from 'lodash';
 
+import * as TestUtils from '../TestUtils';
 import { retryForStatus, waitFor } from './helpers';
 
 export const name = 'Recording';
@@ -36,7 +37,9 @@ export function test(t) {
         interruptionModeAndroid: Audio.INTERRUPTION_MODE_ANDROID_DUCK_OTHERS,
       });
 
-      await Permissions.askAsync(Permissions.AUDIO_RECORDING);
+      await TestUtils.acceptPermissionsAndRunCommandAsync(() => {
+        return Permissions.askAsync(Permissions.AUDIO_RECORDING);
+      });
     });
 
     // According to the documentation pausing should be supported on Android API >= 24,
