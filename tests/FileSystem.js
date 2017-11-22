@@ -361,7 +361,7 @@ export function test(t) {
       await FS.readDirectoryAsync(FS.cacheDirectory);
     });
 
-    t.it('can copy from `CameraRoll`, verify hash, other methods restricted', async () => {
+    /*t.it('can copy from `CameraRoll`, verify hash, other methods restricted', async () => {
       await Promise.all(
         (await CameraRoll.getPhotos({
           first: 1,
@@ -392,7 +392,7 @@ export function test(t) {
           t.expect(origInfo.size).toEqual(copyInfo.size);
         })
       );
-    });
+    });*/
 
     t.it(
       'download(network failure)',

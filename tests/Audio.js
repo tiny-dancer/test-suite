@@ -165,7 +165,7 @@ export function test(t) {
     });
 
     t.describe('Audio.setOnPlaybackStatusUpdate', () => {
-      t.it('sets callbacks that gets called when playing and stopping', async () => {
+      /*t.it('sets callbacks that gets called when playing and stopping', async () => {
         const onPlaybackStatusUpdate = t.jasmine.createSpy('onPlaybackStatusUpdate');
         soundObject.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate);
         await soundObject.loadAsync(mainTestingSource);
@@ -184,7 +184,7 @@ export function test(t) {
         t
           .expect(onPlaybackStatusUpdate)
           .toHaveBeenCalledWith(t.jasmine.objectContaining({ isPlaying: false }));
-      });
+      });*/
 
       t.it(
         'sets callbacks that gets called with didJustFinish when playback finishes',

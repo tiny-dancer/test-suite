@@ -94,12 +94,12 @@ export function test(t) {
         t.expect(isSpeaking).toBe(false);
       });
 
-      t.it('resolves to true if the utility is speaking', async () => {
+      /*t.it('resolves to true if the utility is speaking', async () => {
         Speech.speak(longTextToSpeak);
         const isSpeaking = await Speech.isSpeakingAsync();
         t.expect(isSpeaking).toBe(true);
         Speech.stop();
-      });
+      });*/
     });
   });
 }
