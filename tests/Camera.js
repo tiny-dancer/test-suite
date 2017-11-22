@@ -3,6 +3,7 @@
 import React from 'react';
 import { Platform } from 'react-native';
 import { Camera, Permissions, Video } from 'expo';
+import * as TestUtils from '../TestUtils';
 
 import { waitFor, mountAndWaitFor as originalMountAndWaitFor, retryForStatus } from './helpers';
 
@@ -28,8 +29,12 @@ export function test(t, { setPortalChild, cleanupPortal }) {
       });
 
     t.beforeAll(async () => {
-      await Permissions.askAsync(Permissions.CAMERA);
-      await Permissions.askAsync(Permissions.AUDIO_RECORDING);
+      await TestUtils.acceptPermissionsAndRunCommandAsync(() => {
+        return Permissions.askAsync(Permissions.CAMERA);
+      });
+      await TestUtils.acceptPermissionsAndRunCommandAsync(() => {
+        return Permissions.askAsync(Permissions.AUDIO_RECORDING);
+      });
     });
 
     t.beforeEach(async () => {
