@@ -164,8 +164,8 @@ export function test(t) {
       });
     });
 
-    t.describe('Audio.setOnPlaybackStatusUpdate', () => {
-      /*t.it('sets callbacks that gets called when playing and stopping', async () => {
+    /*t.describe('Audio.setOnPlaybackStatusUpdate', () => {
+      t.it('sets callbacks that gets called when playing and stopping', async () => {
         const onPlaybackStatusUpdate = t.jasmine.createSpy('onPlaybackStatusUpdate');
         soundObject.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate);
         await soundObject.loadAsync(mainTestingSource);
@@ -184,7 +184,7 @@ export function test(t) {
         t
           .expect(onPlaybackStatusUpdate)
           .toHaveBeenCalledWith(t.jasmine.objectContaining({ isPlaying: false }));
-      });*/
+      });
 
       t.it(
         'sets callbacks that gets called with didJustFinish when playback finishes',
@@ -209,7 +209,7 @@ export function test(t) {
           });
         }
       );
-    });
+    });*/
 
     t.describe('Audio.playAsync', () => {
       t.it('plays the sound', async () => {
@@ -303,7 +303,7 @@ export function test(t) {
       });
     });
 
-    t.describe('Audio.setProgressUpdateIntervalAsync', () => {
+    /*t.describe('Audio.setProgressUpdateIntervalAsync', () => {
       t.it('sets update interval', async () => {
         const onPlaybackStatusUpdate = t.jasmine.createSpy('onPlaybackStatusUpdate');
         await soundObject.loadAsync(mainTestingSource, { shouldPlay: true });
@@ -317,7 +317,7 @@ export function test(t) {
           }, 800);
         });
       });
-    });
+    });*/
 
     t.describe('Audio.setRateAsync', () => {
       let rate = 0;
