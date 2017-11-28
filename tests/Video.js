@@ -6,6 +6,7 @@ import { Platform } from 'react-native';
 import { flatten, filter, takeRight, map } from 'lodash';
 
 import {
+  waitFor,
   retryForStatus,
   testNoCrash as originalTestNoCrash,
   testPropSetter as originalTestPropSetter,
@@ -418,6 +419,37 @@ export function test(t, { setPortalChild, cleanupPortal }) {
         await retryForStatus(instance, { isPlaying: false });
         await instance.playAsync();
         await retryForStatus(instance, { isPlaying: true });
+      });
+    });
+
+    t.describe('Video.replayAsync', () => {
+      t.it('replays the video', async () => {
+        await mountAndWaitFor(<Video source={source} ref={refSetter} style={style} shouldPlay />);
+        await retryForStatus(instance, { isPlaying: true });
+        await waitFor(500);
+        const statusBefore = await instance.getStatusAsync();
+        await instance.replayAsync();
+        await retryForStatus(instance, { isPlaying: true });
+        const statusAfter = await instance.getStatusAsync();
+        t.expect(statusAfter.positionMillis).toBeLessThan(statusBefore.positionMillis);
+      });
+
+      t.it('calls the onPlaybackStatusUpdate with hasJustBeenInterrupted = true', async () => {
+        const onPlaybackStatusUpdate = t.jasmine.createSpy('onPlaybackStatusUpdate');
+        const props = {
+          style,
+          source,
+          ref: refSetter,
+          shouldPlay: true,
+          onPlaybackStatusUpdate,
+        };
+        await mountAndWaitFor(<Video {...props} />);
+        await retryForStatus(instance, { isPlaying: true });
+        await waitFor(500);
+        await instance.replayAsync();
+        t
+          .expect(onPlaybackStatusUpdate)
+          .toHaveBeenCalledWith(t.jasmine.objectContaining({ hasJustBeenInterrupted: true }));
       });
     });
 

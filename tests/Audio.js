@@ -3,7 +3,7 @@
 import { Asset, Audio } from 'expo';
 import { Platform } from 'react-native';
 
-import { retryForStatus } from './helpers';
+import { retryForStatus, waitFor } from './helpers';
 
 export const name = 'Audio';
 const mainTestingSource = require('../assets/LLizard.mp3');
@@ -216,6 +216,34 @@ export function test(t) {
         await soundObject.loadAsync(mainTestingSource);
         await soundObject.playAsync();
         await retryForStatus(soundObject, { isPlaying: true });
+      });
+    });
+
+    t.describe('Audio.replayAsync', () => {
+      t.it('replays the sound', async () => {
+        await soundObject.loadAsync(mainTestingSource);
+        await retryForStatus(soundObject, { isLoaded: true });
+        await soundObject.playAsync();
+        await retryForStatus(soundObject, { isPlaying: true });
+        await waitFor(500);
+        const statusBefore = await soundObject.getStatusAsync();
+        soundObject.replayAsync();
+        await retryForStatus(soundObject, { isPlaying: true });
+        const statusAfter = await soundObject.getStatusAsync();
+        t.expect(statusAfter.positionMillis).toBeLessThan(statusBefore.positionMillis);
+      });
+
+      t.it('calls the onPlaybackStatusUpdate with hasJustBeenInterrupted = true', async () => {
+        const onPlaybackStatusUpdate = t.jasmine.createSpy('onPlaybackStatusUpdate');
+        await soundObject.loadAsync(mainTestingSource);
+        soundObject.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate);
+        await retryForStatus(soundObject, { isLoaded: true });
+        await soundObject.playAsync();
+        await retryForStatus(soundObject, { isPlaying: true });
+        await soundObject.replayAsync();
+        t
+          .expect(onPlaybackStatusUpdate)
+          .toHaveBeenCalledWith(t.jasmine.objectContaining({ hasJustBeenInterrupted: true }));
       });
     });
 
