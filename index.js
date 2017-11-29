@@ -58,6 +58,7 @@ class App extends React.Component {
 
   static initialState = {
     portalChildShouldBeVisible: false,
+    testRunnerError: null,
     state: Immutable.fromJS({
       suites: [],
       path: ['suites'], // Path to current 'children' List in state
@@ -75,11 +76,29 @@ class App extends React.Component {
 
     // Load tests, confining to the ones named in the uri
     let modules = getTestModules();
-    if (uri && uri.indexOf(Expo.Constants.linkingUri) === 0) {
-      const deepLink = uri.substring(Expo.Constants.linkingUri.length);
-      const regex = new RegExp(deepLink);
-      console.log('regex:', deepLink);
-      modules = modules.filter(m => regex.test(m.name));
+    if (uri && uri.indexOf('+') > -1) {
+      const deepLink = uri.substring(uri.indexOf('+') + 1);
+      const filterJSON = JSON.parse(deepLink);
+      if (filterJSON.includeModules) {
+        console.log('Only testing these modules: ' + JSON.stringify(filterJSON.includeModules));
+        const includeModulesRegexes = filterJSON.includeModules.map(m => new RegExp(m));
+        modules = modules.filter(m => {
+          for (let i = 0; i < includeModulesRegexes.length; i++) {
+            if (includeModulesRegexes[i].test(m.name)) {
+              return true;
+            }
+          }
+
+          return false;
+        });
+
+        if (modules.length === 0) {
+          this.setState({
+            testRunnerError: `No tests were found that satisfy ${deepLink}`,
+          });
+          return;
+        }
+      }
     }
     modules.forEach(m =>
       m.test(jasmine, { setPortalChild: this.setPortalChild, cleanupPortal: this.cleanupPortal })
@@ -329,7 +348,22 @@ class App extends React.Component {
       );
     }
   };
+
   render() {
+    if (this.state.testRunnerError) {
+      return (
+        <View
+          style={{
+            flex: 1,
+            marginTop: Expo.Constants.statusBarHeight || 18,
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}>
+          <Text style={{ color: 'red' }}>{this.state.testRunnerError}</Text>
+        </View>
+      );
+    }
+
     return (
       <View
         style={{
