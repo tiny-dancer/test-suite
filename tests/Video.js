@@ -17,6 +17,7 @@ import {
 export const name = 'Video';
 const imageRemoteSource = { uri: 'http://via.placeholder.com/350x150' };
 const videoRemoteSource = { uri: 'http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4' };
+const webmSource = require('../assets/unsupported_bunny.webm');
 const imageSource = require('../assets/black-128x256.png');
 const source = require('../assets/big_buck_bunny.mp4');
 const style = { width: 200, height: 200 };
@@ -101,6 +102,14 @@ export function test(t, { setPortalChild, cleanupPortal }) {
             'onError'
           );
           t.expect(error).toBeDefined();
+        });
+
+        t.it('calls onError with a reason when unsupported format given (WebM)', async () => {
+          const error = await mountAndWaitFor(
+            <Video style={style} source={webmSource} />,
+            'onError'
+          );
+          t.expect(error).toContain('This media format is not supported.');
         });
       }
     });
