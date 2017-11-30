@@ -284,6 +284,16 @@ export function test(t) {
         await soundObject.setPositionAsync(1000);
         await retryForStatus(soundObject, { positionMillis: 1000 });
       });
+
+      t.it('sets the position with tolerance', async () => {
+        await soundObject.loadAsync(mainTestingSource);
+        await retryForStatus(soundObject, { positionMillis: 0 });
+        await soundObject.setPositionAsync(999, {
+          toleranceMillisBefore: 0,
+          toleranceMillisAfter: 0,
+        });
+        await retryForStatus(soundObject, { positionMillis: 999 });
+      });
     });
 
     t.describe('Audio.setVolumeAsync', () => {
