@@ -1,8 +1,11 @@
 import path from 'path';
-import request from 'request-promise-native';
+import Request from 'request-promise-native';
 
 import { User, ProjectUtils, Project, ProjectSettings, Simulator } from 'xdl';
 
+const request = Request.defaults({
+  resolveWithFullResponse: true,
+});
 const XDL_CLIENT_ID = 'Zso9S1J7xpRYzT4QNlanGYLL5aBrqy1l'; // This is `exp`'s client ID
 const XDL_LOGIN_USERPASS = {
   username: 'exponent_ci_bot',
