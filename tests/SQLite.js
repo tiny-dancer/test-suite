@@ -172,7 +172,7 @@ export function test(t) {
       }
     });
 
-    t.fit('should maintain correct type of potentialy null numerics', async () => {
+    t.it('should maintain correct type of potentialy null bind parameters', async () => {
       const db = SQLite.openDatabase('test.db');
       await new Promise((resolve, reject) => {
         db.transaction(tx => {
