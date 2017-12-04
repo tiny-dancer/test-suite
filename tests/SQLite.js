@@ -81,5 +81,95 @@ export function test(t) {
         });
       });
     });
+
+    t.it('should be able to recreate db from scratch by deleting file', async () => {
+      {
+        const db = SQLite.openDatabase('test.db');
+        await new Promise((resolve, reject) => {
+          db.transaction(tx => {
+            const nop = () => {};
+            const onError = (tx, error) => reject(error);
+
+            tx.executeSql('DROP TABLE IF EXISTS Users;', [], nop, onError);
+            tx.executeSql(
+              'CREATE TABLE IF NOT EXISTS Users (user_id INTEGER PRIMARY KEY NOT NULL, name VARCHAR(64), k INT, j REAL);',
+              [],
+              nop,
+              onError
+            );
+            tx.executeSql(
+              'INSERT INTO Users (name, k, j) VALUES (?, ?, ?)',
+              ['Tim Duncan', 1, 23.4],
+              nop,
+              onError
+            );
+
+            tx.executeSql(
+              'SELECT * FROM Users',
+              [],
+              (tx, results) => {
+                t.expect(results.rows.length).toEqual(1);
+                resolve();
+              },
+              onError
+            );
+          });
+        });
+      }
+
+      {
+        const { exists } = await FS.getInfoAsync(`${FS.documentDirectory}SQLite/test.db`);
+        t.expect(exists).toBeTruthy();
+      }
+
+      {
+        await FS.deleteAsync(`${FS.documentDirectory}SQLite/test.db`);
+        const { exists } = await FS.getInfoAsync(`${FS.documentDirectory}SQLite/test.db`);
+        t.expect(exists).toBeFalsy();
+      }
+
+      {
+        const db = SQLite.openDatabase('test.db');
+        await new Promise((resolve, reject) => {
+          db.transaction(tx => {
+            const nop = () => {};
+            const onError = (tx, error) => reject(error);
+
+            tx.executeSql('DROP TABLE IF EXISTS Users;', [], nop, onError);
+            tx.executeSql(
+              'CREATE TABLE IF NOT EXISTS Users (user_id INTEGER PRIMARY KEY NOT NULL, name VARCHAR(64), k INT, j REAL);',
+              [],
+              nop,
+              onError
+            );
+            tx.executeSql(
+              'SELECT * FROM Users',
+              [],
+              (tx, results) => {
+                t.expect(results.rows.length).toEqual(0);
+                resolve();
+              },
+              onError
+            );
+
+            tx.executeSql(
+              'INSERT INTO Users (name, k, j) VALUES (?, ?, ?)',
+              ['Tim Duncan', 1, 23.4],
+              nop,
+              onError
+            );
+            tx.executeSql(
+              'SELECT * FROM Users',
+              [],
+              (tx, results) => {
+                t.expect(results.rows.length).toEqual(1);
+                resolve();
+              },
+              onError
+            );
+          });
+        });
+      }
+    });
   });
 }
