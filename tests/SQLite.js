@@ -171,5 +171,41 @@ export function test(t) {
         });
       }
     });
+
+    t.fit('should maintain correct type of potentialy null numerics', async () => {
+      const db = SQLite.openDatabase('test.db');
+      await new Promise((resolve, reject) => {
+        db.transaction(tx => {
+          const nop = () => {};
+          const onError = (tx, error) => reject(error);
+
+          tx.executeSql('DROP TABLE IF EXISTS Nulling;', [], nop, onError);
+          tx.executeSql(
+            'CREATE TABLE IF NOT EXISTS Nulling (id INTEGER PRIMARY KEY NOT NULL, x NUMERIC, y NUMERIC)',
+            [],
+            nop,
+            onError
+          );
+          tx.executeSql('INSERT INTO Nulling (x, y) VALUES (?, ?)', [null, null], nop, onError);
+          tx.executeSql('INSERT INTO Nulling (x, y) VALUES (null, null)', [], nop, onError);
+
+          tx.executeSql(
+            'SELECT * FROM Nulling',
+            [],
+            (tx, results) => {
+              t.expect(results.rows._array[0].x).toBeNull();
+              t.expect(results.rows._array[0].y).toBeNull();
+              t.expect(results.rows._array[1].x).toBeNull();
+              t.expect(results.rows._array[1].y).toBeNull();
+              resolve();
+            },
+            onError
+          );
+        });
+      });
+
+      const { exists } = await FS.getInfoAsync(`${FS.documentDirectory}SQLite/test.db`);
+      t.expect(exists).toBeTruthy();
+    });
   });
 }
