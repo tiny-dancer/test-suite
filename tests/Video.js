@@ -318,7 +318,7 @@ export function test(t, { setPortalChild, cleanupPortal }) {
       });
     }); */
 
-    t.describe('Video.setProgressUpdateIntervalAsync', () => {
+    /*t.describe('Video.setProgressUpdateIntervalAsync', () => {
       t.it('sets frequence of the progress updates', async () => {
         const onPlaybackStatusUpdate = t.jasmine.createSpy('onPlaybackStatusUpdate');
         const props = {
@@ -350,7 +350,7 @@ export function test(t, { setPortalChild, cleanupPortal }) {
           }, 1500);
         });
       });
-    });
+    });*/
 
     t.describe('Video.setPositionAsync', () => {
       t.it('sets position of the video', async () => {
@@ -443,7 +443,7 @@ export function test(t, { setPortalChild, cleanupPortal }) {
         t.expect(statusAfter.positionMillis).toBeLessThan(statusBefore.positionMillis);
       });
 
-      t.it('calls the onPlaybackStatusUpdate with hasJustBeenInterrupted = true', async () => {
+      /*t.it('calls the onPlaybackStatusUpdate with hasJustBeenInterrupted = true', async () => {
         const onPlaybackStatusUpdate = t.jasmine.createSpy('onPlaybackStatusUpdate');
         const props = {
           style,
@@ -459,7 +459,7 @@ export function test(t, { setPortalChild, cleanupPortal }) {
         t
           .expect(onPlaybackStatusUpdate)
           .toHaveBeenCalledWith(t.jasmine.objectContaining({ hasJustBeenInterrupted: true }));
-      });
+      });*/
     });
 
     t.describe('Video.stopAsync', () => {

@@ -233,7 +233,7 @@ export function test(t) {
         t.expect(statusAfter.positionMillis).toBeLessThan(statusBefore.positionMillis);
       });
 
-      t.it('calls the onPlaybackStatusUpdate with hasJustBeenInterrupted = true', async () => {
+      /*t.it('calls the onPlaybackStatusUpdate with hasJustBeenInterrupted = true', async () => {
         const onPlaybackStatusUpdate = t.jasmine.createSpy('onPlaybackStatusUpdate');
         await soundObject.loadAsync(mainTestingSource);
         soundObject.setOnPlaybackStatusUpdate(onPlaybackStatusUpdate);
@@ -244,7 +244,7 @@ export function test(t) {
         t
           .expect(onPlaybackStatusUpdate)
           .toHaveBeenCalledWith(t.jasmine.objectContaining({ hasJustBeenInterrupted: true }));
-      });
+      });*/
     });
 
     t.describe('Audio.pauseAsync', () => {

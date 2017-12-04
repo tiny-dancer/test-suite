@@ -20,7 +20,7 @@ export function test(t) {
       t.expect(error).toBeTruthy();
     };
 
-    t.it(
+    /*t.it(
       'delete(idempotent) -> !exists -> download(md5, uri) -> exists ' + '-> delete -> !exists',
       async () => {
         const localUri = FS.documentDirectory + 'download1.png';
@@ -54,7 +54,7 @@ export function test(t) {
         await assertExists(false);
       },
       9000
-    );
+    );*/
 
     t.it('delete(idempotent) -> delete[error]', async () => {
       const localUri = FS.documentDirectory + 'willDelete.png';
@@ -70,7 +70,7 @@ export function test(t) {
       t.expect(error.message).toMatch(/not.*found/);
     });
 
-    t.it(
+    /*t.it(
       'download(md5, uri) -> read -> delete -> !exists -> read[error]',
       async () => {
         const localUri = FS.documentDirectory + 'download1.txt';
@@ -99,7 +99,7 @@ export function test(t) {
         t.expect(error).toBeTruthy();
       },
       9000
-    );
+    );*/
 
     t.it('delete(idempotent) -> !exists -> write -> read -> write -> read', async () => {
       const localUri = FS.documentDirectory + 'write1.txt';

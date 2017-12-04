@@ -151,7 +151,7 @@ export function test(t) {
       });
     });
 
-    t.describe('Recording.setProgressUpdateInterval(millis)', () => {
+    /*t.describe('Recording.setProgressUpdateInterval(millis)', () => {
       t.afterEach(async () => await recordingObject.stopAndUnloadAsync());
 
       t.it('sets frequence of the progress updates', async () => {
@@ -180,7 +180,7 @@ export function test(t) {
           }, 800);
         });
       });
-    });
+    });*/
 
     t.describe('Recording.startAsync()', () => {
       t.afterEach(async () => {

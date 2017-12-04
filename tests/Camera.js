@@ -48,14 +48,14 @@ export function test(t, { setPortalChild, cleanupPortal }) {
     });
 
     if (Platform.OS === 'android') {
-      t.describe('Camera.getSupportedRatiosAsync', () => {
+      /*t.describe('Camera.getSupportedRatiosAsync', () => {
         t.it('returns an array of strings', async () => {
           await mountAndWaitFor(<Camera style={style} ref={refSetter} />);
           const ratios = await instance.getSupportedRatiosAsync();
           t.expect(ratios instanceof Array).toBe(true);
           t.expect(ratios.length).toBeGreaterThan(0);
         });
-      });
+      });*/
     }
 
     t.describe('Camera.takePictureAsync', () => {
