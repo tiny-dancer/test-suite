@@ -11,6 +11,28 @@ export const name = 'Recording';
 
 const defaultRecordingDurationMillis = 500;
 
+const amrSettings = {
+  android: {
+    extension: '.amr',
+    outputFormat: Audio.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_AMR_NB,
+    audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_AMR_NB,
+    sampleRate: 8000,
+    numberOfChannels: 1,
+    bitRate: 128000,
+  },
+  ios: {
+    extension: '.amr',
+    outputFormat: Audio.RECORDING_OPTION_IOS_OUTPUT_FORMAT_AMR,
+    audioQuality: Audio.RECORDING_OPTION_IOS_AUDIO_QUALITY_HIGH,
+    sampleRate: 8000,
+    numberOfChannels: 1,
+    bitRate: 128000,
+    linearPCMBitDepth: 16,
+    linearPCMIsBigEndian: false,
+    linearPCMIsFloat: false,
+  },
+};
+
 // In some tests one can see:
 //
 // ```
@@ -298,6 +320,29 @@ export function test(t) {
           }, recordingDuration);
         });
       });
+
+      if (Platform.OS === 'android') {
+        t.it('raises an error when the recording is in an unreadable format', async () => {
+          await recordingObject.prepareToRecordAsync(amrSettings);
+          await recordingObject.startAsync();
+
+          const recordingDuration = defaultRecordingDurationMillis;
+          await new Promise(resolve => {
+            setTimeout(async () => {
+              await recordingObject.stopAndUnloadAsync();
+              let error = null;
+              try {
+                await recordingObject.createNewLoadedSound();
+              } catch (err) {
+                error = err;
+              }
+              t.expect(error).toBeDefined();
+
+              resolve();
+            }, recordingDuration);
+          });
+        });
+      }
     });
   });
 }
