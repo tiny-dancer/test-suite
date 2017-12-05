@@ -69,7 +69,7 @@ export function test(t) {
       }
     });
 
-    t.describe('Speech.stop()', () => {
+    /*t.describe('Speech.stop()', () => {
       t.it('calls onStopped', async () => {
         const onStopped = t.jasmine.createSpy('onStopped');
         Speech.speak(longTextToSpeak, { onStopped });
@@ -80,7 +80,7 @@ export function test(t) {
         await waitFor(1000);
         t.expect(onStopped).toHaveBeenCalled();
       });
-    });
+    });*/
 
     t.describe('Speech.isSpeakingAsync()', () => {
       // It takes some time for Speech.stop to stop the utility,
