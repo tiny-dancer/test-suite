@@ -384,6 +384,13 @@ export function test(t, { setPortalChild, cleanupPortal }) {
         t.expect(status.positionMillis).toBeLessThan(1100);
         t.expect(status.positionMillis).toBeGreaterThan(900);
       });
+
+      t.it('keeps the video instance after load when using poster', async () => {
+        const instance = await mountAndWaitFor(<Video style={style} usePoster />, 'ref');
+        await instance.loadAsync(source, { shouldPlay: true });
+        await waitFor(500);
+        await retryForStatus(instance, { isPlaying: true });
+      });
     });
 
     t.describe('Video.unloadAsync', () => {
