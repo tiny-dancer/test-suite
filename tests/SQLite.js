@@ -63,7 +63,7 @@ export function test(t) {
         `${FS.documentDirectory}SQLite/downloaded.db`
       );
 
-      const db = SQLite.openDatabase({ name: 'downloaded.db' });
+      const db = SQLite.openDatabase('downloaded.db');
       await new Promise((resolve, reject) => {
         db.transaction(tx => {
           const nop = () => {};
