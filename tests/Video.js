@@ -23,7 +23,7 @@ const source = require('../assets/big_buck_bunny.mp4');
 const style = { width: 200, height: 200 };
 
 export function test(t, { setPortalChild, cleanupPortal }) {
-  t.xdescribe('Video', () => {
+  t.describe('Video', () => {
     let instance = null;
     const refSetter = ref => {
       instance = ref;
