@@ -109,7 +109,12 @@ export function test(t, { setPortalChild, cleanupPortal }) {
             <Video style={style} source={webmSource} />,
             'onError'
           );
-          t.expect(error).toContain('This media format is not supported.');
+          // We cannot check for the specific reason,
+          // as sometimes it isn't what we would expect it to be
+          // (we'd expect "This media format is not supported."),
+          // so let's check whether there is a reason-description separator,
+          // which is included only if `localizedFailureReason` is not nil.
+          t.expect(error).toContain(' - ');
         });
       }
     });
