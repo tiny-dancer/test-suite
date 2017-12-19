@@ -1,73 +1,10 @@
 // @flow
 
 import React from 'react';
-import { forEach, isMatch } from 'lodash';
+import { isMatch } from 'lodash';
 import asyncRetry from 'async-retry';
 
 export const waitFor = millis => new Promise(resolve => setTimeout(resolve, millis));
-
-export const testPropValues = (
-  component: React.Node,
-  propName: string,
-  values: Array<*>,
-  moreTests: ?Function,
-  { t, mountAndWaitFor }
-) =>
-  t.describe(`${component.type.name}.props.${propName}`, () => {
-    forEach(values, value =>
-      t.it(`sets it to \`${value}\``, async () => {
-        let instance = null;
-        const refSetter = ref => {
-          instance = ref;
-        };
-        const clonedElement = React.cloneElement(component, { ref: refSetter, [propName]: value });
-        await mountAndWaitFor(clonedElement, 'onLoad');
-        await retryForStatus(instance, { [propName]: value });
-      })
-    );
-
-    if (moreTests) {
-      moreTests();
-    }
-  });
-
-export const testPropSetter = (
-  component,
-  propName,
-  propSetter,
-  values,
-  moreTests,
-  { t, mountAndWaitFor }
-) =>
-  t.describe(`Video.${propSetter}`, () => {
-    forEach(values, value =>
-      t.it(`sets it to \`${value}\``, async () => {
-        let instance = null;
-        const refSetter = ref => {
-          instance = ref;
-        };
-        const clonedElement = React.cloneElement(component, { ref: refSetter, [propName]: value });
-        await mountAndWaitFor(clonedElement);
-        await instance[propSetter](value);
-        const status = await instance.getStatusAsync();
-        t.expect(status).toEqual(t.jasmine.objectContaining({ [propName]: value }));
-      })
-    );
-
-    if (moreTests) {
-      moreTests();
-    }
-  });
-
-export const testNoCrash = (component, propName, values, { t, mountAndWaitFor }) =>
-  t.describe(`${component.type.name}.props.${propName}`, () => {
-    forEach(values, value =>
-      t.it(`setting to \`${value}\` doesn't crash`, async () => {
-        const clonedElement = React.cloneElement(component, { [propName]: value });
-        await mountAndWaitFor(clonedElement, 'onLoad');
-      })
-    );
-  });
 
 export const retryForStatus = (object, status) =>
   asyncRetry(
@@ -104,9 +41,6 @@ export const mountAndWaitFor = (
 
 export default {
   waitFor,
-  testNoCrash,
   retryForStatus,
-  testPropValues,
-  testPropSetter,
   mountAndWaitFor,
 };

@@ -1,29 +1,38 @@
 'use strict';
 
 import React from 'react';
+import { forEach } from 'lodash';
 import { Asset, Video } from 'expo';
 import { Platform } from 'react-native';
-import { flatten, filter, takeRight, map } from 'lodash';
 
-import {
-  waitFor,
-  retryForStatus,
-  testNoCrash as originalTestNoCrash,
-  testPropSetter as originalTestPropSetter,
-  testPropValues as originalTestPropValues,
-  mountAndWaitFor as originalMountAndWaitFor,
-} from './helpers';
+import { waitFor, retryForStatus, mountAndWaitFor as originalMountAndWaitFor } from './helpers';
 
 export const name = 'Video';
 const imageRemoteSource = { uri: 'http://via.placeholder.com/350x150' };
 const videoRemoteSource = { uri: 'http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4' };
-const webmSource = require('../assets/unsupported_bunny.webm');
-const imageSource = require('../assets/black-128x256.png');
-const source = require('../assets/big_buck_bunny.mp4');
+let webmSource = require('../assets/unsupported_bunny.webm');
+let imageSource = require('../assets/black-128x256.png');
+const mp4Source = require('../assets/big_buck_bunny.mp4');
+let source = null; // Local URI of the downloaded default source is set in a beforeAll callback.
+
 const style = { width: 200, height: 200 };
 
 export function test(t, { setPortalChild, cleanupPortal }) {
   t.describe('Video', () => {
+    t.beforeAll(async () => {
+      const mp4Asset = Asset.fromModule(mp4Source);
+      await mp4Asset.downloadAsync();
+      source = { uri: mp4Asset.localUri };
+
+      const imageAsset = Asset.fromModule(imageSource);
+      await imageAsset.downloadAsync();
+      imageSource = { uri: imageAsset.localUri };
+
+      const webmAsset = Asset.fromModule(webmSource);
+      await webmAsset.downloadAsync();
+      webmSource = { uri: webmAsset.localUri };
+    });
+
     let instance = null;
     const refSetter = ref => {
       instance = ref;
@@ -37,29 +46,65 @@ export function test(t, { setPortalChild, cleanupPortal }) {
     const mountAndWaitFor = (child, propName = 'onLoad') =>
       originalMountAndWaitFor(child, propName, setPortalChild);
 
-    const testOptions = { t, mountAndWaitFor };
-
     const testPropValues = (propName, values, moreTests) =>
-      originalTestPropValues(
-        <Video style={style} source={source} />,
-        propName,
-        values,
-        moreTests,
-        testOptions
-      );
+      t.describe(`Video.props.${propName}`, () => {
+        forEach(values, value =>
+          t.it(`sets it to \`${value}\``, async () => {
+            let instance = null;
+            const refSetter = ref => {
+              instance = ref;
+            };
+            const element = React.createElement(Video, {
+              style,
+              source,
+              ref: refSetter,
+              [propName]: value,
+            });
+            await mountAndWaitFor(element, 'onLoad');
+            await retryForStatus(instance, { [propName]: value });
+          })
+        );
+
+        if (moreTests) {
+          moreTests();
+        }
+      });
 
     const testNoCrash = (propName, values) =>
-      originalTestNoCrash(<Video style={style} source={source} />, propName, values, testOptions);
+      t.describe(`Video.props.${propName}`, () => {
+        forEach(values, value =>
+          t.it(`setting to \`${value}\` doesn't crash`, async () => {
+            const element = React.createElement(Video, { style, source, [propName]: value });
+            await mountAndWaitFor(element, 'onLoad');
+          })
+        );
+      });
 
     const testPropSetter = (propName, propSetter, values, moreTests) =>
-      originalTestPropSetter(
-        <Video style={style} source={source} />,
-        propName,
-        propSetter,
-        values,
-        moreTests,
-        testOptions
-      );
+      t.describe(`Video.${propSetter}`, () => {
+        forEach(values, value =>
+          t.it(`sets it to \`${value}\``, async () => {
+            let instance = null;
+            const refSetter = ref => {
+              instance = ref;
+            };
+            const element = React.createElement(Video, {
+              style,
+              source,
+              ref: refSetter,
+              [propName]: value,
+            });
+            await mountAndWaitFor(element);
+            await instance[propSetter](value);
+            const status = await instance.getStatusAsync();
+            t.expect(status).toEqual(t.jasmine.objectContaining({ [propName]: value }));
+          })
+        );
+
+        if (moreTests) {
+          moreTests();
+        }
+      });
 
     t.describe('Video.props.onLoadStart', () => {
       t.it('gets called when the source starts loading', async () => {
@@ -71,6 +116,14 @@ export function test(t, { setPortalChild, cleanupPortal }) {
       t.it('gets called when the source loads', async () => {
         await mountAndWaitFor(<Video style={style} source={source} />, 'onLoad');
       });
+
+      t.it('gets called right when the video starts to play if it should autoplay', async () => {
+        const status = await mountAndWaitFor(
+          <Video style={style} source={videoRemoteSource} shouldPlay />,
+          'onLoad'
+        );
+        t.expect(status.positionMillis).toEqual(0);
+      });
     });
 
     t.describe('Video.props.source', () => {
@@ -79,13 +132,13 @@ export function test(t, { setPortalChild, cleanupPortal }) {
       });
 
       t.it('loads `require` source', async () => {
-        const status = await mountAndWaitFor(<Video style={style} source={source} />);
+        const status = await mountAndWaitFor(<Video style={style} source={mp4Source} />);
         t.expect(status).toEqual(t.jasmine.objectContaining({ isLoaded: true }));
       });
 
       t.it('loads `Asset` source', async () => {
         const status = await mountAndWaitFor(
-          <Video style={style} source={Asset.fromModule(source)} />
+          <Video style={style} source={Asset.fromModule(mp4Source)} />
         );
         t.expect(status).toEqual(t.jasmine.objectContaining({ isLoaded: true }));
       });
