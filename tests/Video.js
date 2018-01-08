@@ -222,10 +222,32 @@ export function test(t, { setPortalChild, cleanupPortal }) {
         t.expect(status.status).toBeDefined();
         t.expect(status.status.isLoaded).toBe(true);
       });
+
+      t.it('gets called when the component uses native controls', async () => {
+        const props = {
+          style,
+          source,
+          useNativeControls: true,
+        };
+        const status = await mountAndWaitFor(<Video {...props} />, 'onReadyForDisplay');
+        t.expect(status.status).toBeDefined();
+        t.expect(status.status.isLoaded).toBe(true);
+      });
+
+      t.it("gets called when the component doesn't use native controls", async () => {
+        const props = {
+          style,
+          source,
+          useNativeControls: false,
+        };
+        const status = await mountAndWaitFor(<Video {...props} />, 'onReadyForDisplay');
+        t.expect(status.status).toBeDefined();
+        t.expect(status.status.isLoaded).toBe(true);
+      });
     });
 
     if (Platform.OS === 'ios') {
-      t.describe(`Video iOS fullscreen player`, () => {
+      t.describe(`iOS fullscreen player`, () => {
         t.it('presents the player and calls callback func', async () => {
           const onIOSFullscreenUpdate = t.jasmine.createSpy('onIOSFullscreenUpdate');
           await mountAndWaitFor(
@@ -250,6 +272,91 @@ export function test(t, { setPortalChild, cleanupPortal }) {
           expectUpdate(Video.IOS_FULLSCREEN_UPDATE_PLAYER_WILL_DISMISS);
           expectUpdate(Video.IOS_FULLSCREEN_UPDATE_PLAYER_DID_DISMISS);
         });
+
+        t.it('rejects dismissal request if present request is being handled', async () => {
+          await mountAndWaitFor(
+            <Video style={style} source={source} ref={refSetter} />,
+            'onReadyForDisplay'
+          );
+          let error = null;
+          const presentationPromise = instance.presentIOSFullscreenPlayer();
+          try {
+            await instance.dismissIOSFullscreenPlayer();
+          } catch (err) {
+            error = err;
+          }
+          t.expect(error).toBeDefined();
+          await presentationPromise;
+          await instance.dismissIOSFullscreenPlayer();
+        });
+
+        t.it(
+          'rejects presentation request if present request is already being handled',
+          async () => {
+            await mountAndWaitFor(
+              <Video style={style} source={source} ref={refSetter} />,
+              'onReadyForDisplay'
+            );
+            let error = null;
+            const presentationPromise = instance.presentIOSFullscreenPlayer();
+            try {
+              await instance.presentIOSFullscreenPlayer();
+            } catch (err) {
+              error = err;
+            }
+            t.expect(error).toBeDefined();
+            await presentationPromise;
+            await instance.dismissIOSFullscreenPlayer();
+          }
+        );
+
+        t.it(
+          'rejects all but the last request to change fullscreen mode before the video loads',
+          async () => {
+            // Adding second clause sometimes crashes the application,
+            // because by the time we call `present` second time,
+            // the video loads, so it handles the first request properly,
+            // rejects the second and it may reject the third request
+            // if it tries to be handled while the first presentation request
+            // is being handled.
+            let firstErrored = false;
+            // let secondErrored = false;
+            let thirdErrored = false;
+            // We're using remote source as this gives us time to request changes
+            // before the video loads.
+            const instance = await mountAndWaitFor(
+              <Video style={style} source={videoRemoteSource} />,
+              'ref'
+            );
+            instance.dismissIOSFullscreenPlayer().catch(() => {
+              firstErrored = true;
+            });
+            // instance.presentIOSFullscreenPlayer().catch(() => (secondErrored = true));
+            try {
+              await instance.dismissIOSFullscreenPlayer();
+            } catch (_error) {
+              thirdErrored = true;
+            }
+
+            if (!firstErrored) {
+              // First present request finished too early so we cannot
+              // test this behavior at all. Normally I would put
+              // `t.pending` here, but as for the end of 2017 it doesn't work.
+            } else {
+              t.expect(firstErrored).toBe(true);
+              // t.expect(secondErrored).toBe(true);
+              t.expect(thirdErrored).toBe(false);
+            }
+            const pleaseDismiss = async () => {
+              try {
+                await instance.dismissIOSFullscreenPlayer();
+              } catch (error) {
+                pleaseDismiss();
+              }
+            };
+            await pleaseDismiss();
+          }
+        );
       });
     }
 
