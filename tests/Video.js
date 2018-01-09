@@ -10,6 +10,7 @@ import { waitFor, retryForStatus, mountAndWaitFor as originalMountAndWaitFor } f
 export const name = 'Video';
 const imageRemoteSource = { uri: 'http://via.placeholder.com/350x150' };
 const videoRemoteSource = { uri: 'http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4' };
+const redirectingVideoRemoteSource = { uri: 'http://bit.ly/2mcW40Q' };
 let webmSource = require('../assets/unsupported_bunny.webm');
 let imageSource = require('../assets/black-128x256.png');
 const mp4Source = require('../assets/big_buck_bunny.mp4');
@@ -145,6 +146,13 @@ export function test(t, { setPortalChild, cleanupPortal }) {
 
       t.it('loads `uri` source', async () => {
         const status = await mountAndWaitFor(<Video style={style} source={videoRemoteSource} />);
+        t.expect(status).toEqual(t.jasmine.objectContaining({ isLoaded: true }));
+      });
+
+      t.it('loads redirecting `uri` source', async () => {
+        const status = await mountAndWaitFor(
+          <Video style={style} source={redirectingVideoRemoteSource} />
+        );
         t.expect(status).toEqual(t.jasmine.objectContaining({ isLoaded: true }));
       });
 

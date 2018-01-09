@@ -8,6 +8,7 @@ import { retryForStatus, waitFor } from './helpers';
 export const name = 'Audio';
 const mainTestingSource = require('../assets/LLizard.mp3');
 const soundUri = 'http://www.noiseaddicts.com/samples_1w72b820/280.mp3';
+const redirectingSoundUri = 'http://bit.ly/2qBMx80';
 
 export function test(t) {
   t.describe('Audio class', () => {
@@ -100,6 +101,13 @@ export function test(t) {
 
       t.it('loads the file from the Internet', async () => {
         await soundObject.loadAsync({ uri: soundUri });
+        await retryForStatus(soundObject, { isLoaded: true });
+      });
+
+      t.it('loads the file from the Internet (with redirecting URL)', async () => {
+        await soundObject.loadAsync({
+          uri: redirectingSoundUri,
+        });
         await retryForStatus(soundObject, { isLoaded: true });
       });
 
