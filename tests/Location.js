@@ -173,21 +173,19 @@ export function test(t) {
         timeout
       );
     });
-    /*
+
     t.describe('Location.geocodeAsync()', () => {
-      const timeout = 1000;
+      const timeout = 2000;
 
       t.it(
-        'geocodes a valid place',
+        'geocodes a place of the right shape',
         async () => {
-          const result = await Location.geocodeAsync(
-            'PPG Paints Arena, Pittsburgh'
-          );
+          const result = await Location.geocodeAsync('PPG Paints Arena, Pittsburgh');
           t.expect(Array.isArray(result)).toBe(true);
           t.expect(typeof result[0]).toBe('object');
           const { latitude, longitude, accuracy, altitude } = result[0];
-          t.expect(latitude).toBeCloseTo(40.4395331, 2);
-          t.expect(longitude).toBeCloseTo(-79.9895239, 2);
+          t.expect(typeof latitude).toBe('number');
+          t.expect(typeof longitude).toBe('number');
           t.expect(typeof accuracy).toBe('number');
           t.expect(typeof altitude).toBe('number');
         },
@@ -205,10 +203,10 @@ export function test(t) {
     });
 
     t.describe('Location.reverseGeocodeAsync()', () => {
-      const timeout = 1000;
+      const timeout = 2000;
 
       t.it(
-        'gives a readable address of a point location',
+        'gives a right shape address of a point location',
         async () => {
           const result = await Location.reverseGeocodeAsync({
             latitude: 60.166595,
@@ -216,32 +214,28 @@ export function test(t) {
           });
           t.expect(Array.isArray(result)).toBe(true);
           t.expect(typeof result[0]).toBe('object');
-          t.expect(result[0].city).toBe('Helsinki');
-          t.expect(result[0].street).toBe('Eteläesplanadi');
-          t.expect(result[0].region).toBeDefined();
-          t.expect(result[0].country).toBe('Finland');
-          t.expect(result[0].postalCode).toBe('00130');
-          t.expect(result[0].name).toContain('22');
+          const fields = ['city', 'street', 'region', 'country', 'postalCode', 'name'];
+          fields.forEach(field => {
+            t
+              .expect(typeof result[field] === 'string' || typeof result[field] === 'undefined')
+              .toBe(true);
+          });
         },
         timeout
       );
 
-      t.it(
-        "throws for a location where `latitude` and `longitude` aren't numbers",
-        async () => {
-          let error;
-          try {
-            await Location.reverseGeocodeAsync({
-              latitude: '60',
-              longitude: '24',
-            });
-          } catch (e) {
-            error = e;
-          }
-          t.expect(error instanceof TypeError).toBe(true);
+      t.it("throws for a location where `latitude` and `longitude` aren't numbers", async () => {
+        let error;
+        try {
+          await Location.reverseGeocodeAsync({
+            latitude: '60',
+            longitude: '24',
+          });
+        } catch (e) {
+          error = e;
         }
-      );
+        t.expect(error instanceof TypeError).toBe(true);
+      });
     });
-    */
   });
 }
