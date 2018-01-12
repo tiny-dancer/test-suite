@@ -14,6 +14,8 @@ const redirectingVideoRemoteSource = { uri: 'http://bit.ly/2mcW40Q' };
 let webmSource = require('../assets/unsupported_bunny.webm');
 let imageSource = require('../assets/black-128x256.png');
 const mp4Source = require('../assets/big_buck_bunny.mp4');
+const hlsStreamUri = 'http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8';
+const hlsStreamUriWithRedirect = 'http://bit.ly/1iy90bn';
 let source = null; // Local URI of the downloaded default source is set in a beforeAll callback.
 
 const style = { width: 200, height: 200 };
@@ -149,6 +151,65 @@ export function test(t, { setPortalChild, cleanupPortal }) {
         t.expect(status).toEqual(t.jasmine.objectContaining({ isLoaded: true }));
       });
 
+      if (Platform.OS === 'android') {
+        t.it(
+          'calls onError when the file from the Internet redirects to a non-standard content',
+          async () => {
+            const error = await mountAndWaitFor(
+              <Video
+                style={style}
+                source={{
+                  uri: hlsStreamUriWithRedirect,
+                }}
+              />,
+              'onError'
+            );
+            t.expect(error.toLowerCase()).toContain('format');
+          }
+        );
+        t.it(
+          'loads the file from the Internet that redirects to non-standard content when overrideFileExtensionAndroid is provided',
+          async () => {
+            let hasBeenRejected = false;
+            try {
+              const status = await mountAndWaitFor(
+                <Video
+                  style={style}
+                  source={{ uri: hlsStreamUriWithRedirect, overrideFileExtensionAndroid: 'm3u8' }}
+                />
+              );
+              t.expect(status).toEqual(t.jasmine.objectContaining({ isLoaded: true }));
+            } catch (error) {
+              hasBeenRejected = true;
+            }
+            t.expect(hasBeenRejected).toBe(false);
+          }
+        );
+      } else {
+        t.it(
+          'loads the file from the Internet that redirects to non-standard content',
+          async () => {
+            let hasBeenRejected = false;
+            try {
+              const status = await mountAndWaitFor(
+                <Video style={style} source={{ uri: hlsStreamUriWithRedirect }} />
+              );
+              t.expect(status).toEqual(t.jasmine.objectContaining({ isLoaded: true }));
+            } catch (error) {
+              hasBeenRejected = true;
+            }
+            t.expect(hasBeenRejected).toBe(false);
+          }
+        );
+      }
+
+      t.it('loads HLS stream', async () => {
+        const status = await mountAndWaitFor(
+          <Video style={style} source={{ uri: hlsStreamUri }} />
+        );
+        t.expect(status).toEqual(t.jasmine.objectContaining({ isLoaded: true }));
+      });
+
       t.it('loads redirecting `uri` source', async () => {
         const status = await mountAndWaitFor(
           <Video style={style} source={redirectingVideoRemoteSource} />
@@ -156,15 +217,15 @@ export function test(t, { setPortalChild, cleanupPortal }) {
         t.expect(status).toEqual(t.jasmine.objectContaining({ isLoaded: true }));
       });
 
-      if (Platform.OS === 'ios') {
-        t.it('calls onError when given image source', async () => {
-          const error = await mountAndWaitFor(
-            <Video style={style} source={imageSource} />,
-            'onError'
-          );
-          t.expect(error).toBeDefined();
-        });
+      t.it('calls onError when given image source', async () => {
+        const error = await mountAndWaitFor(
+          <Video style={style} source={imageSource} />,
+          'onError'
+        );
+        t.expect(error).toBeDefined();
+      });
 
+      if (Platform.OS === 'ios') {
         t.it('calls onError with a reason when unsupported format given (WebM)', async () => {
           const error = await mountAndWaitFor(
             <Video style={style} source={webmSource} />,

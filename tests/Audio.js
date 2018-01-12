@@ -8,6 +8,8 @@ import { retryForStatus, waitFor } from './helpers';
 export const name = 'Audio';
 const mainTestingSource = require('../assets/LLizard.mp3');
 const soundUri = 'http://www.noiseaddicts.com/samples_1w72b820/280.mp3';
+const hlsStreamUri = 'http://qthttp.apple.com.edgesuite.net/1010qwoeiuryfg/sl.m3u8';
+const hlsStreamUriWithRedirect = 'http://bit.ly/1iy90bn';
 const redirectingSoundUri = 'http://bit.ly/2qBMx80';
 
 export function test(t) {
@@ -101,6 +103,63 @@ export function test(t) {
 
       t.it('loads the file from the Internet', async () => {
         await soundObject.loadAsync({ uri: soundUri });
+        await retryForStatus(soundObject, { isLoaded: true });
+      });
+
+      if (Platform.OS === 'android') {
+        t.it(
+          'rejects the file from the Internet that redirects to non-standard content',
+          async () => {
+            let hasBeenRejected = false;
+            try {
+              await soundObject.loadAsync({
+                uri: hlsStreamUriWithRedirect,
+              });
+              await retryForStatus(soundObject, { isLoaded: true });
+            } catch (error) {
+              hasBeenRejected = true;
+            }
+            t.expect(hasBeenRejected).toBe(true);
+          }
+        );
+        t.it(
+          'loads the file from the Internet that redirects to non-standard content when overrideFileExtensionAndroid is provided',
+          async () => {
+            let hasBeenRejected = false;
+            try {
+              await soundObject.loadAsync({
+                uri: hlsStreamUriWithRedirect,
+                overrideFileExtensionAndroid: 'm3u8',
+              });
+              await retryForStatus(soundObject, { isLoaded: true });
+            } catch (error) {
+              hasBeenRejected = true;
+            }
+            t.expect(hasBeenRejected).toBe(false);
+          }
+        );
+      } else {
+        t.it(
+          'loads the file from the Internet that redirects to non-standard content',
+          async () => {
+            let hasBeenRejected = false;
+            try {
+              await soundObject.loadAsync({
+                uri: hlsStreamUriWithRedirect,
+              });
+              await retryForStatus(soundObject, { isLoaded: true });
+            } catch (error) {
+              hasBeenRejected = true;
+            }
+            t.expect(hasBeenRejected).toBe(false);
+          }
+        );
+      }
+
+      t.it('loads HLS stream', async () => {
+        await soundObject.loadAsync({
+          uri: hlsStreamUri,
+        });
         await retryForStatus(soundObject, { isLoaded: true });
       });
 
