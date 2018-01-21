@@ -1,18 +1,18 @@
-const process = require('process');
+const process = require("process");
 
 function main(args) {
-  require('babel-register')({
+  require("babel-register")({
     babelrc: false,
-    plugins: [require('babel-plugin-transform-es2015-modules-commonjs')],
+    plugins: [require("babel-plugin-transform-es2015-modules-commonjs")]
   });
 
-  const Run = require('./Run');
+  const Run = require("./Run");
   let Log = {
     collapsed: function(msg) {
-      console.log('--- ' + msg);
-    },
+      console.log("--- " + msg);
+    }
   };
-  let options = require('minimist')(args);
+  let options = require("minimist")(args);
   Run.ios(Log, options).catch(error => {
     console.error(error.toString());
     process.exit(1);
