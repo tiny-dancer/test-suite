@@ -9,10 +9,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "async-retry": "^1.1.4",
     "expo": "*",
     "immutable": "^3.8.1",
     "jasmine-core": "^2.4.1",
+    "performance-now": "^2.1.0",
     "react": "16.0.0-alpha.12",
-    "react-native": "expo/react-native#sdk-18"
+    "react-native": "expo/react-native#sdk-25"
   }
 }

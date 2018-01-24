@@ -1,10 +1,18 @@
 'use strict';
 
 import React from 'react';
-import { Dimensions, Linking, NativeModules, ScrollView, Text, View } from 'react-native';
+import {
+  Dimensions,
+  Linking,
+  NativeModules,
+  ScrollView,
+  Text,
+  View,
+} from 'react-native';
 import Expo from 'expo';
 import jasmineModule from 'jasmine-core/lib/jasmine-core/jasmine';
 import Immutable from 'immutable';
+import now from 'performance-now';
 
 let { ExponentTest } = NativeModules;
 
@@ -67,7 +75,8 @@ class App extends React.Component {
   };
 
   setPortalChild = testPortal => this.setState({ testPortal });
-  cleanupPortal = () => new Promise(resolve => this.setState({ testPortal: null }, resolve));
+  cleanupPortal = () =>
+    new Promise(resolve => this.setState({ testPortal: null }, resolve));
 
   async _runTests(uri) {
     // Reset results state
@@ -81,8 +90,13 @@ class App extends React.Component {
       const deepLink = uri.substring(uri.indexOf('+') + 1);
       const filterJSON = JSON.parse(deepLink);
       if (filterJSON.includeModules) {
-        console.log('Only testing these modules: ' + JSON.stringify(filterJSON.includeModules));
-        const includeModulesRegexes = filterJSON.includeModules.map(m => new RegExp(m));
+        console.log(
+          'Only testing these modules: ' +
+            JSON.stringify(filterJSON.includeModules)
+        );
+        const includeModulesRegexes = filterJSON.includeModules.map(
+          m => new RegExp(m)
+        );
         modules = modules.filter(m => {
           for (let i = 0; i < includeModulesRegexes.length; i++) {
             if (includeModulesRegexes[i].test(m.name)) {
@@ -102,7 +116,10 @@ class App extends React.Component {
       }
     }
     modules.forEach(m =>
-      m.test(jasmine, { setPortalChild: this.setPortalChild, cleanupPortal: this.cleanupPortal })
+      m.test(jasmine, {
+        setPortalChild: this.setPortalChild,
+        cleanupPortal: this.cleanupPortal,
+      })
     );
 
     jasmineEnv.execute();
@@ -131,9 +148,11 @@ class App extends React.Component {
     const oldIt = jasmine.it;
     jasmine.it = (desc, fn, t) => oldIt.apply(jasmine, [desc, doneIfy(fn), t]);
     const oldXit = jasmine.xit;
-    jasmine.xit = (desc, fn, t) => oldXit.apply(jasmine, [desc, doneIfy(fn), t]);
+    jasmine.xit = (desc, fn, t) =>
+      oldXit.apply(jasmine, [desc, doneIfy(fn), t]);
     const oldFit = jasmine.fit;
-    jasmine.fit = (desc, fn, t) => oldFit.apply(jasmine, [desc, doneIfy(fn), t]);
+    jasmine.fit = (desc, fn, t) =>
+      oldFit.apply(jasmine, [desc, doneIfy(fn), t]);
 
     return {
       jasmineCore,
@@ -151,7 +170,8 @@ class App extends React.Component {
         if (result.status === 'passed' || result.status === 'failed') {
           // Open log group if failed
           const grouping = result.status === 'passed' ? '---' : '+++';
-          const emoji = result.status === 'passed' ? ':green_heart:' : ':broken_heart:';
+          const emoji =
+            result.status === 'passed' ? ':green_heart:' : ':broken_heart:';
           console.log(`${grouping} ${emoji} ${result.fullName}`);
           this._results += `${grouping} ${result.fullName}\n`;
 
@@ -191,6 +211,7 @@ class App extends React.Component {
   // A jasmine reporter that writes results to this.state
   _jasmineSetStateReporter(jasmineEnv) {
     const app = this;
+    var start;
     return {
       suiteStarted(jasmineResult) {
         app.setState(({ state }) => ({
@@ -204,7 +225,9 @@ class App extends React.Component {
                 })
               )
             )
-            .update('path', path => path.push(state.getIn(path).size, 'children')),
+            .update('path', path =>
+              path.push(state.getIn(path).size, 'children')
+            ),
         }));
       },
 
@@ -226,6 +249,7 @@ class App extends React.Component {
       },
 
       specStarted(jasmineResult) {
+        start = now();
         app.setState(({ state }) => ({
           state: state.updateIn(
             state
@@ -234,16 +258,24 @@ class App extends React.Component {
               .pop(),
             children =>
               children.update(children.size - 1, child =>
-                child.update('specs', specs => specs.push(Immutable.fromJS(jasmineResult)))
+                child.update('specs', specs =>
+                  specs.push(Immutable.fromJS(jasmineResult))
+                )
               )
           ),
         }));
       },
 
       specDone(jasmineResult) {
+        jasmineResult.expo = {
+          msDuration: now() - start,
+        };
+
         if (app.state.testPortal) {
           console.warn(
-            `The test portal has not been cleaned up by \`${jasmineResult.fullName}\`. Call \`cleanupPortal\` before finishing the test.`
+            `The test portal has not been cleaned up by \`${
+              jasmineResult.fullName
+            }\`. Call \`cleanupPortal\` before finishing the test.`
           );
         }
 
@@ -282,7 +314,8 @@ class App extends React.Component {
             disabled: '#888',
           }[status],
           borderLeftWidth: 3,
-        }}>
+        }}
+      >
         <Text style={{ fontSize: 16 }}>
           {
             {
@@ -291,9 +324,14 @@ class App extends React.Component {
               failed: '😞 ',
             }[status]
           }
-          {r.get('description')} ({status})
+          {r.get('description')} ({status}
+          {status === 'passed' || status === 'failed'
+            ? ` in ${r.getIn(['expo', 'msDuration'])}ms`
+            : ''})
         </Text>
-        {r.get('failedExpectations').map((e, i) => <Text key={i}>{e.get('message')}</Text>)}
+        {r
+          .get('failedExpectations')
+          .map((e, i) => <Text key={i}>{e.get('message')}</Text>)}
       </View>
     );
   };
@@ -359,7 +397,8 @@ class App extends React.Component {
             marginTop: Expo.Constants.statusBarHeight || 18,
             alignItems: 'center',
             justifyContent: 'center',
-          }}>
+          }}
+        >
           <Text style={{ color: 'red' }}>{this.state.testRunnerError}</Text>
         </View>
       );
@@ -373,7 +412,8 @@ class App extends React.Component {
           alignItems: 'stretch',
           justifyContent: 'center',
         }}
-        testID="test_suite_container">
+        testID="test_suite_container"
+      >
         <ScrollView
           style={{
             flex: 1,
@@ -382,8 +422,11 @@ class App extends React.Component {
             padding: 5,
           }}
           ref={ref => (this._scrollViewRef = ref)}
-          onContentSizeChange={this._onScrollViewContentSizeChange}>
-          {this.state.state.get('suites').map(r => this._renderSuiteResult(r, 0))}
+          onContentSizeChange={this._onScrollViewContentSizeChange}
+        >
+          {this.state.state
+            .get('suites')
+            .map(r => this._renderSuiteResult(r, 0))}
         </ScrollView>
         {this._renderPortal()}
       </View>
