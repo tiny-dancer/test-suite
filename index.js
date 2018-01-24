@@ -12,7 +12,6 @@ import {
 import Expo from 'expo';
 import jasmineModule from 'jasmine-core/lib/jasmine-core/jasmine';
 import Immutable from 'immutable';
-import now from 'performance-now';
 
 let { ExponentTest } = NativeModules;
 
@@ -249,7 +248,7 @@ class App extends React.Component {
       },
 
       specStarted(jasmineResult) {
-        start = now();
+        start = new Date().getTime();
         app.setState(({ state }) => ({
           state: state.updateIn(
             state
@@ -268,7 +267,7 @@ class App extends React.Component {
 
       specDone(jasmineResult) {
         jasmineResult.expo = {
-          msDuration: now() - start,
+          msDuration: new Date().getTime() - start,
         };
 
         if (app.state.testPortal) {
