@@ -1,14 +1,7 @@
 'use strict';
 
 import React from 'react';
-import {
-  Dimensions,
-  Linking,
-  NativeModules,
-  ScrollView,
-  Text,
-  View,
-} from 'react-native';
+import { Dimensions, Linking, NativeModules, ScrollView, Text, View } from 'react-native';
 import Expo from 'expo';
 import jasmineModule from 'jasmine-core/lib/jasmine-core/jasmine';
 import Immutable from 'immutable';
@@ -74,8 +67,7 @@ class App extends React.Component {
   };
 
   setPortalChild = testPortal => this.setState({ testPortal });
-  cleanupPortal = () =>
-    new Promise(resolve => this.setState({ testPortal: null }, resolve));
+  cleanupPortal = () => new Promise(resolve => this.setState({ testPortal: null }, resolve));
 
   async _runTests(uri) {
     // Reset results state
@@ -89,13 +81,8 @@ class App extends React.Component {
       const deepLink = uri.substring(uri.indexOf('+') + 1);
       const filterJSON = JSON.parse(deepLink);
       if (filterJSON.includeModules) {
-        console.log(
-          'Only testing these modules: ' +
-            JSON.stringify(filterJSON.includeModules)
-        );
-        const includeModulesRegexes = filterJSON.includeModules.map(
-          m => new RegExp(m)
-        );
+        console.log('Only testing these modules: ' + JSON.stringify(filterJSON.includeModules));
+        const includeModulesRegexes = filterJSON.includeModules.map(m => new RegExp(m));
         modules = modules.filter(m => {
           for (let i = 0; i < includeModulesRegexes.length; i++) {
             if (includeModulesRegexes[i].test(m.name)) {
@@ -147,11 +134,9 @@ class App extends React.Component {
     const oldIt = jasmine.it;
     jasmine.it = (desc, fn, t) => oldIt.apply(jasmine, [desc, doneIfy(fn), t]);
     const oldXit = jasmine.xit;
-    jasmine.xit = (desc, fn, t) =>
-      oldXit.apply(jasmine, [desc, doneIfy(fn), t]);
+    jasmine.xit = (desc, fn, t) => oldXit.apply(jasmine, [desc, doneIfy(fn), t]);
     const oldFit = jasmine.fit;
-    jasmine.fit = (desc, fn, t) =>
-      oldFit.apply(jasmine, [desc, doneIfy(fn), t]);
+    jasmine.fit = (desc, fn, t) => oldFit.apply(jasmine, [desc, doneIfy(fn), t]);
 
     return {
       jasmineCore,
@@ -169,8 +154,7 @@ class App extends React.Component {
         if (result.status === 'passed' || result.status === 'failed') {
           // Open log group if failed
           const grouping = result.status === 'passed' ? '---' : '+++';
-          const emoji =
-            result.status === 'passed' ? ':green_heart:' : ':broken_heart:';
+          const emoji = result.status === 'passed' ? ':green_heart:' : ':broken_heart:';
           console.log(`${grouping} ${emoji} ${result.fullName}`);
           this._results += `${grouping} ${result.fullName}\n`;
 
@@ -224,9 +208,7 @@ class App extends React.Component {
                 })
               )
             )
-            .update('path', path =>
-              path.push(state.getIn(path).size, 'children')
-            ),
+            .update('path', path => path.push(state.getIn(path).size, 'children')),
         }));
       },
 
@@ -257,9 +239,7 @@ class App extends React.Component {
               .pop(),
             children =>
               children.update(children.size - 1, child =>
-                child.update('specs', specs =>
-                  specs.push(Immutable.fromJS(jasmineResult))
-                )
+                child.update('specs', specs => specs.push(Immutable.fromJS(jasmineResult)))
               )
           ),
         }));
@@ -328,9 +308,7 @@ class App extends React.Component {
             ? ` in ${r.getIn(['expo', 'msDuration'])}ms`
             : ''})
         </Text>
-        {r
-          .get('failedExpectations')
-          .map((e, i) => <Text key={i}>{e.get('message')}</Text>)}
+        {r.get('failedExpectations').map((e, i) => <Text key={i}>{e.get('message')}</Text>)}
       </View>
     );
   };
@@ -423,9 +401,7 @@ class App extends React.Component {
           ref={ref => (this._scrollViewRef = ref)}
           onContentSizeChange={this._onScrollViewContentSizeChange}
         >
-          {this.state.state
-            .get('suites')
-            .map(r => this._renderSuiteResult(r, 0))}
+          {this.state.state.get('suites').map(r => this._renderSuiteResult(r, 0))}
         </ScrollView>
         {this._renderPortal()}
       </View>
