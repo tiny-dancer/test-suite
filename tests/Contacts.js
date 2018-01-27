@@ -6,7 +6,7 @@ import * as TestUtils from '../TestUtils';
 export const name = 'Contacts';
 
 export function test(t) {
-  t.fdescribe('Contacts', () => {
+  t.describe('Contacts', () => {
     let firstContact;
     let phoneContact;
     t.describe('Contacts.getContactsAsync()', () => {
