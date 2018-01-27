@@ -33,7 +33,6 @@ export function test(t) {
       });
 
       t.it('should return phone label', () => {
-        console.log(JSON.stringify(phoneContact.phoneNumbers));
         t.expect(phoneContact.phoneNumbers[0].label).toBeDefined();
       });
 
