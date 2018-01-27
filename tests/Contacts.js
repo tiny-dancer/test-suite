@@ -8,6 +8,7 @@ export const name = 'Contacts';
 export function test(t) {
   t.fdescribe('Contacts', () => {
     let firstContact;
+    let phoneContact;
     t.describe('Contacts.getContactsAsync()', () => {
       t.it('gets permission and at least one result, all results of right shape', async () => {
         await TestUtils.acceptPermissionsAndRunCommandAsync(() => {
@@ -25,29 +26,152 @@ export function test(t) {
           t.expect(Array.isArray(phoneNumbers) || typeof phoneNumbers === 'undefined').toBe(true);
           t.expect(Array.isArray(emails) || typeof emails === 'undefined').toBe(true);
         });
+        phoneContact = contacts.data.find(
+          contact => contact.phoneNumbers && contact.phoneNumbers.length
+        );
         firstContact = contacts.data[0];
       });
 
-      t.it('skips phone number if not asked', async () => {
-        const contacts = await Contacts.getContactsAsync({
-          fields: [Contacts.EMAILS],
-        });
-        t.expect(contacts.total > 0).toBe(true);
-        t.expect(contacts.data.length > 0).toBe(true);
-        contacts.data.forEach(({ id, name, phoneNumbers, emails }) => {
-          t.expect(typeof phoneNumbers === 'undefined').toBe(true);
-        });
+      t.it('should return phone label', () => {
+        console.log(JSON.stringify(phoneContact.phoneNumbers));
+        t.expect(phoneContact.phoneNumbers[0].label).toBeDefined();
       });
 
-      t.it('skips email if not asked', async () => {
-        const contacts = await Contacts.getContactsAsync({
-          fields: [Contacts.PHONE_NUMBERS],
+      t.it('should return phone id', () => {
+        t.expect(phoneContact.phoneNumbers[0].id).toBeDefined();
+      });
+
+      t.it('should return phone number', () => {
+        t.expect(phoneContact.phoneNumbers[0].number).toBeDefined();
+      });
+
+      t.it('should return phone primary', () => {
+        t.expect(phoneContact.phoneNumbers[0].primary).toBeDefined();
+      });
+
+      t.it('should return emails', async () => {
+        let contacts = await Contacts.getContactsAsync({
+          fields: [Contacts.EMAILS],
+          pageSize: 10000,
         });
         t.expect(contacts.total > 0).toBe(true);
         t.expect(contacts.data.length > 0).toBe(true);
-        contacts.data.forEach(({ id, name, phoneNumbers, emails }) => {
-          t.expect(typeof emails === 'undefined').toBe(true);
+        t
+          .expect(
+            contacts.data.some(
+              ({ emails }) =>
+                emails &&
+                emails.length &&
+                emails[0].id &&
+                emails[0].label &&
+                emails[0].email &&
+                typeof emails[0].primary !== 'undefined'
+            )
+          )
+          .toBe(true);
+      });
+
+      t.it('should return note', async () => {
+        await TestUtils.acceptPermissionsAndRunCommandAsync(() => {
+          return Permissions.askAsync(Permissions.CONTACTS);
         });
+        let contacts = await Contacts.getContactsAsync({
+          fields: [Contacts.NOTE],
+          pageSize: 10000,
+        });
+        t.expect(contacts.total > 0).toBe(true);
+        t.expect(contacts.data.length > 0).toBe(true);
+        t.expect(contacts.data.some(({ note }) => note && note.length)).toBe(true);
+      });
+
+      t.it('should return dates and birthday', async () => {
+        await TestUtils.acceptPermissionsAndRunCommandAsync(() => {
+          return Permissions.askAsync(Permissions.CONTACTS);
+        });
+        let contacts = await Contacts.getContactsAsync({
+          fields: [Contacts.DATES, Contacts.BIRTHDAY],
+          pageSize: 10000,
+        });
+        t.expect(contacts.total > 0).toBe(true);
+        t.expect(contacts.data.length > 0).toBe(true);
+        t
+          .expect(
+            contacts.data.some(
+              ({ dates }) =>
+                dates && dates.length && dates[0].day && dates[0].month && dates[0].year
+            )
+          )
+          .toBe(true);
+        t
+          .expect(
+            contacts.data.some(
+              ({ birthday }) => birthday && birthday.day && birthday.month && birthday.year
+            )
+          )
+          .toBe(true);
+      });
+
+      t.it('should return instantMessageAddresses', async () => {
+        await TestUtils.acceptPermissionsAndRunCommandAsync(() => {
+          return Permissions.askAsync(Permissions.CONTACTS);
+        });
+        let contacts = await Contacts.getContactsAsync({
+          fields: [Contacts.IM_ADDRESSES],
+          pageSize: 10000,
+        });
+        t.expect(contacts.total > 0).toBe(true);
+        t.expect(contacts.data.length > 0).toBe(true);
+        t
+          .expect(
+            contacts.data.some(
+              ({ instantMessageAddresses }) =>
+                instantMessageAddresses &&
+                instantMessageAddresses.length &&
+                instantMessageAddresses[0].service &&
+                instantMessageAddresses[0].username
+            )
+          )
+          .toBe(true);
+      });
+
+      t.it('should return urlAddresses', async () => {
+        await TestUtils.acceptPermissionsAndRunCommandAsync(() => {
+          return Permissions.askAsync(Permissions.CONTACTS);
+        });
+        let contacts = await Contacts.getContactsAsync({
+          fields: [Contacts.URLS],
+          pageSize: 10000,
+        });
+        t.expect(contacts.total > 0).toBe(true);
+        t.expect(contacts.data.length > 0).toBe(true);
+        t
+          .expect(
+            contacts.data.some(
+              ({ urlAddresses }) => urlAddresses && urlAddresses.length && urlAddresses[0].url
+            )
+          )
+          .toBe(true);
+      });
+
+      t.it('should return relationships', async () => {
+        let contacts = await Contacts.getContactsAsync({
+          fields: [Contacts.RELATIONSHIPS],
+          pageSize: 10000,
+        });
+        t.expect(contacts.total > 0).toBe(true);
+        t.expect(contacts.data.length > 0).toBe(true);
+        t
+          .expect(
+            contacts.data.some(
+              ({ relationships }) =>
+                relationships &&
+                relationships.length &&
+                relationships[0].name &&
+                relationships[0].id &&
+                relationships[0].label
+            )
+          )
+          .toBe(true);
       });
 
       t.it('skips additional properties if fields is empty', async () => {
@@ -58,20 +182,20 @@ export function test(t) {
         t.expect(contacts.data.length > 0).toBe(true);
         contacts.data.forEach(contact => {
           const toSkip = [
-            phoneNumbers,
-            emails,
-            addresses,
-            socialProfiles,
-            instantMessageAddresses,
-            urls,
-            dates,
-            relationships,
-            note,
-            namePrefix,
-            nameSuffix,
-            phoneticFirstName,
-            phoneticMiddleName,
-            phoneticLastName,
+            contact.phoneNumbers,
+            contact.emails,
+            contact.addresses,
+            contact.socialProfiles,
+            contact.instantMessageAddresses,
+            contact.urls,
+            contact.dates,
+            contact.relationships,
+            contact.note,
+            contact.namePrefix,
+            contact.nameSuffix,
+            contact.phoneticFirstName,
+            contact.phoneticMiddleName,
+            contact.phoneticLastName,
           ];
           toSkip.forEach(entry => {
             t.expect(typeof entry === 'undefined').toBe(true);
@@ -79,7 +203,7 @@ export function test(t) {
         });
       });
 
-      t.it('returns consistent image data', async () => {
+      t.it('should returns consistent image data', async () => {
         const contacts = await Contacts.getContactsAsync({
           fields: [Contacts.IMAGE, Contacts.THUMBNAIL],
         });
@@ -119,13 +243,11 @@ export function test(t) {
           pageOffset: 0,
           pageSize: 2,
         });
-        console.log(`FIRST PAGE: ${JSON.stringify(firstPage)}`);
         const secondPage = await Contacts.getContactsAsync({
           fields: [Contacts.PHONE_NUMBERS],
           pageOffset: 1,
           pageSize: 2,
         });
-        console.log(`SECOND PAGE: ${JSON.stringify(secondPage)}`);
 
         if (firstPage.total >= 3) {
           t.expect(firstPage.data.length).toBe(2);
@@ -137,116 +259,82 @@ export function test(t) {
       });
     });
     t.describe('Contacts.getContactByIdAsync()', () => {
-      t.it('gets a result of right shape', async () => {
-        if (firstContact) {
-          const contact = await Contacts.getContactByIdAsync({
-            fields: [
-              Contacts.PHONE_NUMBERS,
-              Contacts.EMAILS,
-              Contacts.ADDRESSES,
-              Contacts.NOTE,
-              Contacts.BIRTHDAY,
-              Contacts.NON_GREGORIAN_BIRTHDAY,
-              Contacts.NAME_PREFIX,
-              Contacts.NAME_SUFFIX,
-              Contacts.PHONETIC_FIRST_NAME,
-              Contacts.PHONETIC_MIDDLE_NAME,
-              Contacts.PHONETIC_LAST_NAME,
-              Contacts.SOCIAL_PROFILES,
-              Contacts.IM_ADDRESSES,
-              Contacts.URLS,
-              Contacts.DATES,
-              Contacts.RELATIONSHIPS,
-            ],
-            id: firstContact.id,
-          });
-          const {
-            id,
-            name,
-            firstName,
-            middleName,
-            lastName,
-            nickname,
-            jobTitle,
-            company,
-            department,
-            imageAvailable,
-            previousLastName, // ios only
-            phoneNumbers,
-            emails,
-            addresses,
-            image,
-            thumbnail,
-            note,
-            nonGregorianBirthday, // ios only
-            namePrefix,
-            nameSuffix,
-            phoneticFirstName,
-            phoneticMiddleName,
-            phoneticLastName,
-            socialProfiles, // ios only
-            instantMessageAddresses,
-            urls,
-            dates,
-            relationships,
-            birthday,
-          } = contact;
+      let contact;
+      t.it('should retrieve a contact', async () => {
+        contact = await Contacts.getContactByIdAsync({
+          fields: [
+            Contacts.PHONE_NUMBERS,
+            Contacts.EMAILS,
+            Contacts.ADDRESSES,
+            Contacts.NOTE,
+            Contacts.BIRTHDAY,
+            Contacts.NON_GREGORIAN_BIRTHDAY,
+            Contacts.NAME_PREFIX,
+            Contacts.NAME_SUFFIX,
+            Contacts.PHONETIC_FIRST_NAME,
+            Contacts.PHONETIC_MIDDLE_NAME,
+            Contacts.PHONETIC_LAST_NAME,
+            Contacts.SOCIAL_PROFILES,
+            Contacts.IM_ADDRESSES,
+            Contacts.URLS,
+            Contacts.DATES,
+            Contacts.RELATIONSHIPS,
+          ],
+          id: firstContact.id,
+        });
 
-          t.expect(typeof id === 'string' || typeof id === 'number').toBe(true);
-          t.expect(typeof name === 'string' || typeof name === 'undefined').toBe(true);
-          t.expect(Array.isArray(phoneNumbers) || typeof phoneNumbers === 'undefined').toBe(true);
-          t.expect(Array.isArray(emails) || typeof emails === 'undefined').toBe(true);
+        t.expect(contact).toBeDefined();
+      });
 
-          t.expect(typeof id === 'string' || typeof id === 'number').toBe(true);
-          t.expect(typeof name === 'string' || typeof name === 'undefined').toBe(true);
-          t.expect(Array.isArray(phoneNumbers) || typeof phoneNumbers === 'undefined').toBe(true);
-          t.expect(Array.isArray(emails) || typeof emails === 'undefined').toBe(true);
-          t
-            .expect(typeof imageAvailable === 'boolean' || typeof imageAvailable === 'undefined')
-            .toBe(true);
-          const strings = [
-            name,
-            firstName,
-            middleName,
-            lastName,
-            previousLastName,
-            nickname,
-            company,
-            jobTitle,
-            department,
-            note,
-            namePrefix,
-            nameSuffix,
-            phoneticFirstName,
-            phoneticMiddleName,
-            phoneticLastName,
-          ];
-          strings.forEach(string => {
-            t.expect(typeof string === 'string' || typeof string === 'undefined').toBe(true);
-          });
+      // const {
+      //   id,
+      //   name,
+      //   firstName,
+      //   middleName,
+      //   lastName,
+      //   nickname,
+      //   jobTitle,
+      //   company,
+      //   department,
+      //   imageAvailable,
+      //   previousLastName, // ios only
+      //   phoneNumbers,
+      //   emails,
+      //   addresses,
+      //   image,
+      //   thumbnail,
+      //   note,
+      //   nonGregorianBirthday, // ios only
+      //   namePrefix,
+      //   nameSuffix,
+      //   phoneticFirstName,
+      //   phoneticMiddleName,
+      //   phoneticLastName,
+      //   socialProfiles, // ios only
+      //   instantMessageAddresses,
+      //   urls,
+      //   dates,
+      //   relationships,
+      //   birthday,
+      // } = contact;
 
-          const arrays = [
-            phoneNumbers,
-            emails,
-            addresses,
-            socialProfiles,
-            instantMessageAddresses,
-            urls,
-            dates,
-            relationships,
-          ];
-          arrays.forEach(array => {
-            t.expect(Array.isArray(array) || typeof array === 'undefined').toBe(true);
-          });
+      t.it('should return id', () => {
+        t.expect(typeof contact.id === 'string' || typeof contact.id === 'number').toBe(true);
+      });
 
-          t.expect(typeof birthday === 'object' || typeof birthday === 'undefined').toBe(true);
-          t
-            .expect(
-              typeof nonGregorianBirthday === 'object' ||
-                typeof nonGregorianBirthday === 'undefined'
-            )
-            .toBe(true);
-        }
+      t.it('should return name', () => {
+        t.expect(contact.name).toBeDefined();
+        t.expect(typeof contact.name === 'string').toBe(true);
+      });
+
+      t.it('should return firstName', () => {
+        t.expect(contact.firstName).toBeDefined();
+        t.expect(typeof contact.firstName === 'string').toBe(true);
+      });
+
+      t.it('should return lastName', () => {
+        t.expect(contact.firstName).toBeDefined();
+        t.expect(typeof contact.firstName === 'string').toBe(true);
       });
     });
   });
