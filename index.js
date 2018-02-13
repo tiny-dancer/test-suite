@@ -32,6 +32,7 @@ function getTestModules() {
     require('./tests/Payments'),
     require('./tests/Admob'),
     require('./tests/Video'),
+    require('./tests/Permissions'),
   ];
   if (Expo.Constants.isDevice) {
     // TODO: add require('./tests/Camera') once it passes on DeviceFarm
