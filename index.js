@@ -30,12 +30,10 @@ function getTestModules() {
     require('./tests/Segment'),
     require('./tests/Speech'),
     require('./tests/Payments'),
-    /*
-      TODO: needs propTypes fix
     require('./tests/AdMobInterstitial'),
     require('./tests/AdMobBanner'),
     require('./tests/AdMobPublisherBanner'),
-    require('./tests/AdMobRewarded'), */
+    require('./tests/AdMobRewarded'),
     require('./tests/Video'),
     require('./tests/Permissions'),
     require('./tests/Notifications'),
@@ -250,9 +248,7 @@ class App extends React.Component {
       specDone(jasmineResult) {
         if (app.state.testPortal) {
           console.warn(
-            `The test portal has not been cleaned up by \`${
-              jasmineResult.fullName
-            }\`. Call \`cleanupPortal\` before finishing the test.`
+            `The test portal has not been cleaned up by \`${jasmineResult.fullName}\`. Call \`cleanupPortal\` before finishing the test.`
           );
         }
 

@@ -3,12 +3,10 @@
 import React from 'react';
 import { forEach } from 'lodash';
 import { PublisherBanner } from 'expo';
-import { Platform } from 'react-native';
 
-import { waitFor, retryForStatus, mountAndWaitFor as originalMountAndWaitFor } from './helpers';
+import { mountAndWaitFor as originalMountAndWaitFor } from './helpers';
 
 export const name = 'PublisherBanner';
-const style = { width: 200, height: 200 };
 
 const validAdUnitID = 'ca-app-pub-3940256099942544/6300978111';
 const invalidAdUnitID = 'id';
@@ -27,14 +25,14 @@ export function test(t, { setPortalChild, cleanupPortal }) {
   t.describe('PublisherBanner', () => {
     t.afterEach(async () => await cleanupPortal());
 
-    const mountAndWaitFor = (child, propName = 'adViewDidReceiveAd') =>
+    const mountAndWaitFor = (child, propName = 'onAdViewDidReceiveAd') =>
       originalMountAndWaitFor(child, propName, setPortalChild);
 
     t.describe('when given valid adUnitID', () => {
       t.it('calls adViewDidReceiveAd', async () => {
         await mountAndWaitFor(
           <PublisherBanner bannerSize="banner" adUnitID={validAdUnitID} testDeviceID="EMULATOR" />,
-          'adViewDidReceiveAd'
+          'onAdViewDidReceiveAd'
         );
       });
 
@@ -63,7 +61,7 @@ export function test(t, { setPortalChild, cleanupPortal }) {
             adUnitID={invalidAdUnitID}
             testDeviceID="EMULATOR"
           />,
-          'didFailToReceiveAdWithError'
+          'onDidFailToReceiveAdWithError'
         );
       });
     });

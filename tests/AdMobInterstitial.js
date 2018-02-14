@@ -1,10 +1,7 @@
 import { Platform } from 'react-native';
-import { AdMobBanner, AdMobInterstitial, PublisherBanner, AdMobRewarded } from 'expo';
-import { waitFor } from './helpers';
+import { AdMobInterstitial } from 'expo';
 
 export const name = 'AdMobInterstitial';
-
-const validAdUnitID = 'ca-app-pub-3940256099942544/4411468910';
 
 export function test(t) {
   t.describe('AdMobInterstitial', () => {
@@ -22,22 +19,6 @@ export function test(t) {
       });
     });
 
-    t.describe('isReady', () => {
-      t.it(
-        'calls callback with a boolean',
-        () =>
-          new Promise((resolve, reject) => {
-            AdMobInterstitial.isReady(result => {
-              if (typeof result === 'boolean') {
-                resolve();
-              } else {
-                reject(`Expected result to be a boolean, not ${typeof result}.`);
-              }
-            });
-          })
-      );
-    });
-
     t.describe('getIsReadyAsync', () => {
       t.it('resolves with a boolean', async () => {
         const result = await AdMobInterstitial.getIsReadyAsync();
@@ -46,57 +27,6 @@ export function test(t) {
     });
 
     if (Platform.OS === 'ios') {
-      t.describe('requestAd', () => {
-        t.describe('if adUnitID is valid', () => {
-          t.beforeAll(() =>
-            AdMobInterstitial.setAdUnitID('ca-app-pub-3940256099942544/1033173712')
-          );
-          t.afterEach(
-            async () =>
-              await AdMobInterstitial.showAdAsync().then(
-                async () => await AdMobInterstitial.dismissAdAsync()
-              )
-          );
-
-          t.it(
-            'prepares an interstitial ad',
-            () =>
-              new Promise((resolve, reject) => {
-                AdMobInterstitial.requestAd(async error => {
-                  const adIsReady = await AdMobInterstitial.getIsReadyAsync();
-                  if (error) {
-                    reject(error);
-                  } else if (!adIsReady) {
-                    reject('Expected Ad to be ready.');
-                  } else {
-                    resolve();
-                  }
-                });
-              })
-          );
-        });
-
-        t.describe('if adUnitID is invalid', () => {
-          t.beforeAll(() => AdMobInterstitial.setAdUnitID('ad'));
-          t.it(
-            'rejects',
-            () =>
-              new Promise((resolve, reject) => {
-                AdMobInterstitial.requestAd(async error => {
-                  const adIsReady = await AdMobInterstitial.getIsReadyAsync();
-                  if (error) {
-                    resolve();
-                  } else if (adIsReady) {
-                    reject('Expected Ad not to be ready.');
-                  } else {
-                    reject('Expected requestAd to fail.');
-                  }
-                });
-              })
-          );
-        });
-      });
-
       t.describe('requestAdAsync', () => {
         t.describe('if adUnitID is valid', () => {
           t.beforeAll(() =>
@@ -179,67 +109,6 @@ export function test(t) {
               didFailToLoadListener
             );
           });
-        });
-      });
-
-      t.describe('showAd', () => {
-        t.describe('if an ad is prepared', () => {
-          t.beforeEach(async () => {
-            AdMobInterstitial.setAdUnitID('ca-app-pub-3940256099942544/1033173712');
-            await AdMobInterstitial.requestAdAsync();
-            t.expect(await AdMobInterstitial.getIsReadyAsync()).toBe(true);
-          });
-
-          t.it(
-            'displays an interstitial ad',
-            async () =>
-              new Promise((resolve, reject) =>
-                AdMobInterstitial.showAd(error => {
-                  if (error) {
-                    reject(error);
-                  } else {
-                    AdMobInterstitial.dismissAdAsync()
-                      .then(() => resolve())
-                      .catch(() => resolve());
-                  }
-                })
-              )
-          );
-
-          t.it('calls interstitialDidOpen listener', async () => {
-            const didOpenListener = t.jasmine.createSpy('interstitialDidOpen');
-            AdMobInterstitial.addEventListener('interstitialDidOpen', didOpenListener);
-            await new Promise((resolve, reject) =>
-              AdMobInterstitial.showAd(error => {
-                if (error) {
-                  reject(error);
-                } else {
-                  AdMobInterstitial.dismissAdAsync()
-                    .then(() => resolve())
-                    .catch(() => resolve());
-                }
-              })
-            );
-            t.expect(didOpenListener).toHaveBeenCalled();
-            AdMobInterstitial.removeEventListener('interstitialDidOpen', didOpenListener);
-          });
-        });
-
-        t.describe('if an ad is not prepared', () => {
-          t.beforeAll(async () => t.expect(await AdMobInterstitial.getIsReadyAsync()).toBe(false));
-          t.it(
-            'rejects',
-            async () =>
-              new Promise((resolve, reject) => {
-                AdMobInterstitial.showAd(error => {
-                  if (error) {
-                    resolve();
-                  } else {
-                    reject('Expected ad not to be shown.');
-                  }
-                });
-              })
-          );
         });
       });
 
