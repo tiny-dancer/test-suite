@@ -5,7 +5,7 @@ import { Localization } from 'expo';
 export const name = 'Localization';
 
 export function test(t) {
-  t.fdescribe(`Localization does something`, () => {
+  t.describe(`Localization does something`, () => {
     t.it('Gets the current device country', async () => {
       const result = await Localization.getCurrentDeviceCountryAsync();
       t.expect(result).not.toBe(undefined);
