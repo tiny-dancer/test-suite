@@ -21,9 +21,9 @@ export function test(t) {
       });
     });
 
-    t.describe('of Permissions.REMOTE_NOTIFICATIONS', () => {
+    t.describe('of Permissions.USER_FACING_NOTIFICATIONS', () => {
       t.it('has proper shape', async () => {
-        const result = await Permissions.getAsync(Permissions.REMOTE_NOTIFICATIONS);
+        const result = await Permissions.getAsync(Permissions.USER_FACING_NOTIFICATIONS);
         const keys = Object.keys(result);
         t.expect(keys).toContain('status');
         t.expect(keys).toContain('expires');
@@ -37,7 +37,7 @@ export function test(t) {
       if (Platform.OS === 'android') {
         t.it('is equal to status of notifications permission', async () => {
           const localResult = await Permissions.getAsync(Permissions.NOTIFICATIONS);
-          const remoteResult = await Permissions.getAsync(Permissions.REMOTE_NOTIFICATIONS);
+          const remoteResult = await Permissions.getAsync(Permissions.USER_FACING_NOTIFICATIONS);
 
           t.expect(remoteResult).toEqual(localResult);
         });
