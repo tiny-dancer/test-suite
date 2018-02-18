@@ -1,6 +1,7 @@
 'use strict';
 
 import { SecureStore } from 'expo';
+import { Platform } from 'react-native';
 
 export const name = 'SecureStore';
 
@@ -14,138 +15,114 @@ export function test(t) {
   const optionsServiceA = { keychainService: 'service-A' };
   const optionsServiceB = { keychainService: 'service-B' };
   t.describe('SecureStore: store -> fetch -> delete -> fetch -> err:', () => {
-    t.it('Sets a value with a key', async done => {
+    t.it('Sets a value with a key', async () => {
       try {
         const result = await SecureStore.setItemAsync(key, value, {});
         t.expect(result).toBe(undefined);
       } catch (e) {
-        done.fail(e);
+        t.fail(e);
       }
     });
-    t.it('Fetch the value stored with the key', async done => {
+    t.it('Fetch the value stored with the key', async () => {
       try {
         const fetchedValue = await SecureStore.getItemAsync(key, {});
         t.expect(fetchedValue).toBe(value);
       } catch (e) {
-        done.fail(e);
+        t.fail(e);
       }
     });
-    t.it('Delete the value associated with the key', async done => {
+    t.it('Delete the value associated with the key', async () => {
       try {
         const result = await SecureStore.deleteItemAsync(key, {});
         t.expect(result).toBe(undefined);
       } catch (e) {
-        done.fail(e);
+        t.fail(e);
       }
     });
-    t.it('Fetch the previously deleted key, expect no value error', async done => {
-      try {
-        const fetchedValue = await SecureStore.getItemAsync(key, {});
-        done.fail(fetchedValue);
-      } catch (e) {
-        t.expect(e).toBeTruthy;
-      }
+    t.it('Fetch the previously deleted key, expect null', async () => {
+      const fetchedValue = await SecureStore.getItemAsync(key, {});
+      t.expect(fetchedValue).toBe(null);
     });
   });
   t.describe('SecureStore: store -> fetch -> delete -> fetch -> err with Options:', () => {
-    t.it('Sets a value with a key and keychainService', async done => {
-      try {
-        const result = await SecureStore.setItemAsync(key, value, {
-          keychainService: 'service',
-        });
-        t.expect(result).toBe(undefined);
-      } catch (e) {
-        done.fail(e);
-      }
+    t.it('Sets a value with a key and keychainService', async () => {
+      const result = await SecureStore.setItemAsync(key, value, {
+        keychainService: 'service',
+      });
+      t.expect(result).toBe(undefined);
     });
-    t.it('Fetch the value stored with the key and keychainService', async done => {
-      try {
-        const fetchedValue = await SecureStore.getItemAsync(key, {
-          keychainService: 'service',
-        });
-        t.expect(fetchedValue).toBe(value);
-      } catch (e) {
-        done.fail(e);
-      }
+    t.it('Fetch the value stored with the key and keychainService', async () => {
+      const fetchedValue = await SecureStore.getItemAsync(key, {
+        keychainService: 'service',
+      });
+      t.expect(fetchedValue).toBe(value);
     });
-    t.it('Delete the value associated with the key', async done => {
-      try {
-        const result = await SecureStore.deleteItemAsync(key, {
-          keychainService: 'service',
-        });
-        t.expect(result).toBe(undefined);
-      } catch (e) {
-        done.fail(e);
-      }
+    t.it('Delete the value associated with the key', async () => {
+      const result = await SecureStore.deleteItemAsync(key, {
+        keychainService: 'service',
+      });
+      t.expect(result).toBe(undefined);
     });
-    t.it('Fetch the previously deleted key, expect no value error', async done => {
-      try {
-        const fetchedValue = await SecureStore.getItemAsync(key, {
-          keychainService: 'service',
-        });
-        done.fail(fetchedValue);
-      } catch (e) {
-        t.expect(e).toBeTruthy;
-      }
+    t.it('Fetch the previously deleted key, expect null', async () => {
+      const fetchedValue = await SecureStore.getItemAsync(key, {
+        keychainService: 'service',
+      });
+      t.expect(fetchedValue).toBe(null);
     });
   });
   t.describe('SecureStore: store with empty key -> err:', () => {
-    t.it('Sets a value with an empty key, expect error', async done => {
+    t.it('Sets a value with an empty key, expect error', async () => {
       try {
         const result = await SecureStore.setItemAsync(emptyKey, value, {});
-        done.fail(result);
+        t.fail(result);
       } catch (e) {
-        t.expect(e).toBeTruthy;
+        t.expect(e).toBeTruthy();
       }
     });
   });
   t.describe('SecureStore: store with empty Value -> err:', () => {
-    t.it('Sets an empty value with a key, expect error', async done => {
+    t.it('Sets an empty value with a key, expect error', async () => {
       try {
         const result = await SecureStore.setItemAsync(key, emptyValue, {});
-        done.fail(result);
+        t.fail(result);
       } catch (e) {
-        t.expect(e).toBeTruthy;
+        t.expect(e).toBeTruthy();
       }
     });
   });
   t.describe(
     'SecureStore: store value with keychainServiceA, fetch with keychainServiceB -> err:',
     () => {
-      t.it('Sets a value with keychainServiceA', async done => {
-        try {
-          const result = await SecureStore.setItemAsync(key, value, optionsServiceA);
-          t.expect(result).toBe(undefined);
-        } catch (e) {
-          done.fail(e);
-        }
+      t.it('Sets a value with keychainServiceA', async () => {
+        const result = await SecureStore.setItemAsync(key, value, optionsServiceA);
+        t.expect(result).toBe(undefined);
       });
-      t.it('Fetch value with keychainServiceB, expect error', async done => {
-        try {
+      if (Platform.OS === 'ios') {
+        t.it('Fetch value with keychainServiceB, expect null', async () => {
           const result = await SecureStore.getItemAsync(key, optionsServiceB);
-          done.fail(result);
-        } catch (e) {
-          t.expect(e).toBeTruthy;
-        }
-      });
+          t.expect(result).toBe(null);
+        });
+      } else if (Platform.OS === 'android') {
+        t.it('Fetch value with keychainServiceB, expect decoding error', async () => {
+          try {
+            const result = await SecureStore.getItemAsync(key, optionsServiceB);
+            t.fail(result);
+          } catch (e) {
+            t.expect(e).toBeTruthy();
+            t.expect(e.message).toMatch(`Could not decrypt the item in SecureStore`);
+          }
+        });
+      }
     }
   );
   t.describe('SecureStore: store long value, fetch long value -> Success:', () => {
-    t.it('Set long value', async done => {
-      try {
-        const result = await SecureStore.setItemAsync(key, longValue);
-        t.expect(result).toBe(undefined);
-      } catch (e) {
-        done.fail(e);
-      }
+    t.it('Set long value', async () => {
+      const result = await SecureStore.setItemAsync(key, longValue);
+      t.expect(result).toBe(undefined);
     });
-    t.it('Fetch long value', async done => {
-      try {
-        const result = await SecureStore.getItemAsync(key);
-        t.expect(result).toBe(longValue);
-      } catch (e) {
-        done.fail(e);
-      }
+    t.it('Fetch long value', async () => {
+      const result = await SecureStore.getItemAsync(key);
+      t.expect(result).toBe(longValue);
     });
   });
 }
