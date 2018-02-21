@@ -52,6 +52,7 @@ class App extends React.Component {
     super(props, context);
     this.state = App.initialState;
     this._results = '';
+    this._failures = '';
     this._scrollViewRef = null;
   }
 
@@ -161,9 +162,11 @@ class App extends React.Component {
           this._results += `${grouping} ${result.fullName}\n`;
 
           if (result.status === 'failed') {
+            this._failures += `${grouping} ${result.fullName}\n`;
             result.failedExpectations.forEach(({ matcherName, message }) => {
               console.log(`${matcherName}: ${message}`);
               this._results += `${matcherName}: ${message}\n`;
+              this._failures += `${matcherName}: ${message}\n`;
             });
             failedSpecs.push(result);
           }
@@ -187,7 +190,13 @@ class App extends React.Component {
         console.log(result);
 
         if (ExponentTest) {
-          ExponentTest.completed(result);
+          // Native logs are truncated so log just the failures for now
+          ExponentTest.completed(
+            JSON.stringify({
+              failed: failedSpecs.length,
+              failures: this._failures,
+            })
+          );
         }
       },
     };
