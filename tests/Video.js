@@ -687,6 +687,57 @@ export function test(t, { setPortalChild, cleanupPortal }) {
         await instance.playAsync();
         await retryForStatus(instance, { isPlaying: true });
       });
+
+      t.it('does not play video that played to an end', async () => {
+        const onPlaybackStatusUpdate = t.jasmine.createSpy('onPlaybackStatusUpdate');
+        const props = {
+          onPlaybackStatusUpdate,
+          source,
+          style,
+          ref: refSetter,
+        };
+        await mountAndWaitFor(<Video {...props} />);
+        await retryForStatus(instance, { isBuffering: false, isLoaded: true });
+        const status = await instance.getStatusAsync();
+        await instance.setStatusAsync({
+          shouldPlay: true,
+          positionMillis: status.durationMillis - 500,
+        });
+        await new Promise(resolve => {
+          setTimeout(() => {
+            t
+              .expect(onPlaybackStatusUpdate)
+              .toHaveBeenCalledWith(t.jasmine.objectContaining({ didJustFinish: true }));
+            resolve();
+          }, 1000);
+        });
+        await instance.playAsync();
+        t.expect((await instance.getStatusAsync()).isPlaying).toBe(false);
+      });
+    });
+
+    t.describe('Video.playFromPositionAsync', () => {
+      t.it('plays a video that played to an end', async () => {
+        const onPlaybackStatusUpdate = t.jasmine.createSpy('onPlaybackStatusUpdate');
+        const props = { onPlaybackStatusUpdate, source, style, ref: refSetter };
+        await mountAndWaitFor(<Video {...props} />);
+        await retryForStatus(instance, { isBuffering: false, isLoaded: true });
+        const status = await instance.getStatusAsync();
+        await instance.setStatusAsync({
+          shouldPlay: true,
+          positionMillis: status.durationMillis - 500,
+        });
+        await new Promise(resolve => {
+          setTimeout(() => {
+            t
+              .expect(onPlaybackStatusUpdate)
+              .toHaveBeenCalledWith(t.jasmine.objectContaining({ didJustFinish: true }));
+            resolve();
+          }, 1000);
+        });
+        await instance.playFromPositionAsync(0);
+        await retryForStatus(instance, { isPlaying: true });
+      });
     });
 
     t.describe('Video.replayAsync', () => {
@@ -699,6 +750,28 @@ export function test(t, { setPortalChild, cleanupPortal }) {
         await retryForStatus(instance, { isPlaying: true });
         const statusAfter = await instance.getStatusAsync();
         t.expect(statusAfter.positionMillis).toBeLessThan(statusBefore.positionMillis);
+      });
+
+      t.it('plays a video that played to an end', async () => {
+        const onPlaybackStatusUpdate = t.jasmine.createSpy('onPlaybackStatusUpdate');
+        const props = { onPlaybackStatusUpdate, source, style, ref: refSetter };
+        await mountAndWaitFor(<Video {...props} />);
+        await retryForStatus(instance, { isBuffering: false, isLoaded: true });
+        const status = await instance.getStatusAsync();
+        await instance.setStatusAsync({
+          shouldPlay: true,
+          positionMillis: status.durationMillis - 500,
+        });
+        await new Promise(resolve => {
+          setTimeout(() => {
+            t
+              .expect(onPlaybackStatusUpdate)
+              .toHaveBeenCalledWith(t.jasmine.objectContaining({ didJustFinish: true }));
+            resolve();
+          }, 1000);
+        });
+        await instance.replayAsync();
+        await retryForStatus(instance, { isPlaying: true });
       });
 
       /*t.it('calls the onPlaybackStatusUpdate with hasJustBeenInterrupted = true', async () => {
