@@ -107,8 +107,14 @@ class App extends React.Component {
         }
       }
     }
-    modules.forEach(m =>
-      m.test(jasmine, { setPortalChild: this.setPortalChild, cleanupPortal: this.cleanupPortal })
+
+    await Promise.all(
+      modules.map(m =>
+        m.test(jasmine, {
+          setPortalChild: this.setPortalChild,
+          cleanupPortal: this.cleanupPortal,
+        })
+      )
     );
 
     jasmineEnv.execute();
