@@ -34,6 +34,7 @@ async function getTestModulesAsync() {
     require('./tests/FileSystem'),
     require('./tests/Localization'),
     require('./tests/Location'),
+    require('./tests/Linking'),
     require('./tests/Recording'),
     require('./tests/SecureStore'),
     require('./tests/Segment'),
@@ -86,6 +87,12 @@ class App extends React.Component {
   cleanupPortal = () => new Promise(resolve => this.setState({ testPortal: null }, resolve));
 
   async _runTests(uri) {
+    // If the URL contains two pluses let's keep the existing state instead of rerunning tests.
+    // This way we are able to test the Linking module.
+    if (uri && uri.indexOf('++') > -1) {
+      return;
+    }
+
     // Reset results state
     this.setState(App.initialState);
 
