@@ -48,8 +48,11 @@ const amrSettings = {
 // > This happens if stop() is called immediately after start().
 // > Source: https://developer.android.com/reference/android/media/MediaRecorder.html#stop()
 
-export function test(t) {
-  t.describe('Recording', () => {
+export async function test(t) {
+  const shouldSkipTestsRequiringPermissions = await TestUtils.shouldSkipTestsRequiringPermissionsAsync();
+  const describeWithPermissions = shouldSkipTestsRequiringPermissions ? t.xdescribe : t.describe;
+
+  describeWithPermissions('Recording', () => {
     t.beforeAll(async () => {
       await Audio.setAudioModeAsync({
         shouldDuckAndroid: true,

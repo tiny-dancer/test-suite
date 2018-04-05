@@ -106,6 +106,49 @@ export function test(t) {
         await retryForStatus(soundObject, { isLoaded: true });
       });
 
+      t.describe('cookie session', () => {
+        t.afterEach(async () => {
+          try {
+            await fetch('https://authenticated-static-files-pybhevxezw.now.sh/sign_out', {
+              method: 'DELETE',
+            });
+          } catch (error) {
+            console.warn(`Could not sign out of cookie session test backend, error: ${error}.`);
+          }
+        });
+
+        t.it('is shared with fetch session', async () => {
+          let error = null;
+          try {
+            await soundObject.loadAsync({
+              uri: 'https://authenticated-static-files-pybhevxezw.now.sh/LLizard.mp3',
+            });
+          } catch (err) {
+            error = err;
+          }
+          t.expect(error).toBeDefined();
+          if (Platform.OS === 'android') {
+            t.expect(error.toString()).toMatch('Response code: 401');
+          } else {
+            t.expect(error.toString()).toMatch('error code -1013');
+          }
+          const signInResponse = await (await fetch(
+            'https://authenticated-static-files-pybhevxezw.now.sh/sign_in',
+            { method: 'POST' }
+          )).text();
+          t.expect(signInResponse).toMatch('Signed in successfully!');
+          error = null;
+          try {
+            await soundObject.loadAsync({
+              uri: 'https://authenticated-static-files-pybhevxezw.now.sh/LLizard.mp3',
+            });
+          } catch (err) {
+            error = err;
+          }
+          t.expect(error).toBeNull();
+        });
+      });
+
       if (Platform.OS === 'android') {
         t.it(
           'rejects the file from the Internet that redirects to non-standard content',

@@ -5,6 +5,7 @@ import { Platform } from 'react-native';
 import { Notifications, Permissions } from 'expo';
 
 import { waitFor } from './helpers';
+import * as TestUtils from '../TestUtils';
 
 export const name = 'Notifications';
 
@@ -46,8 +47,11 @@ const waitForCallOfListener = (notificationOverrides, options) =>
     }
   });
 
-export function test(t) {
-  t.describe('Notifications', () => {
+export async function test(t) {
+  const shouldSkipTestsRequiringPermissions = await TestUtils.shouldSkipTestsRequiringPermissionsAsync();
+  const describeWithPermissions = shouldSkipTestsRequiringPermissions ? t.xdescribe : t.describe;
+
+  describeWithPermissions('Notifications', () => {
     t.beforeAll(async () => {
       await Permissions.askAsync(Permissions.NOTIFICATIONS);
     });

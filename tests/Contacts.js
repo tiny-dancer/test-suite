@@ -5,8 +5,11 @@ import * as TestUtils from '../TestUtils';
 
 export const name = 'Contacts';
 
-export function test(t) {
-  t.describe('Contacts', () => {
+export async function test(t) {
+  const shouldSkipTestsRequiringPermissions = await TestUtils.shouldSkipTestsRequiringPermissionsAsync();
+  const describeWithPermissions = shouldSkipTestsRequiringPermissions ? t.xdescribe : t.describe;
+
+  describeWithPermissions('Contacts', () => {
     let firstContact;
     let phoneContact;
     t.describe('Contacts.getContactsAsync()', () => {

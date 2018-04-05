@@ -7,7 +7,10 @@ import * as TestUtils from '../TestUtils';
 
 export const name = 'Location';
 
-export function test(t) {
+export async function test(t) {
+  const shouldSkipTestsRequiringPermissions = await TestUtils.shouldSkipTestsRequiringPermissionsAsync();
+  const describeWithPermissions = shouldSkipTestsRequiringPermissions ? t.xdescribe : t.describe;
+
   t.describe('Location', () => {
     t.describe('Location.getProviderStatusAsync()', () => {
       const timeout = 1000;
@@ -46,7 +49,7 @@ export function test(t) {
         );
       }
     });
-    t.describe('Location.getCurrentPositionAsync()', () => {
+    describeWithPermissions('Location.getCurrentPositionAsync()', () => {
       // Manual interaction:
       //   1. Just try
       //   2. iOS Settings --> General --> Reset --> Reset Location & Privacy,
@@ -140,7 +143,7 @@ export function test(t) {
       );
     });
 
-    t.describe('Location.getHeadingAsync()', () => {
+    describeWithPermissions('Location.getHeadingAsync()', () => {
       const testCompass = options => async () => {
         // Disable Compass Test if in simulator
         if (Constants.isDevice) {

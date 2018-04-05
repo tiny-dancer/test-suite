@@ -1,16 +1,26 @@
 'use strict';
 
 import React from 'react';
-import { Dimensions, Linking, NativeModules, ScrollView, Text, View } from 'react-native';
+import { Dimensions, Linking, NativeModules, Platform, ScrollView, Text, View } from 'react-native';
 import Expo from 'expo';
 import jasmineModule from 'jasmine-core/lib/jasmine-core/jasmine';
 import Immutable from 'immutable';
+
+import * as TestUtils from '../TestUtils';
 
 let { ExponentTest } = NativeModules;
 
 // List of all modules for tests. Each file path must be statically present for
 // the packager to pick them all up.
-function getTestModules() {
+async function getTestModulesAsync() {
+  // The tests don't complete on CircleCI on iOS so we test just that the app launches and runs
+  if (Platform.OS === 'ios') {
+    let isInCI = await TestUtils.shouldSkipTestsRequiringPermissionsAsync();
+    if (isInCI) {
+      return [];
+    }
+  }
+
   let modules = [
     // require('./tests/Basic1'),
     // require('./tests/Basic2'),
@@ -24,6 +34,7 @@ function getTestModules() {
     require('./tests/FileSystem'),
     require('./tests/Localization'),
     require('./tests/Location'),
+    require('./tests/Linking'),
     require('./tests/Recording'),
     require('./tests/SecureStore'),
     require('./tests/Segment'),
@@ -52,6 +63,7 @@ class App extends React.Component {
     super(props, context);
     this.state = App.initialState;
     this._results = '';
+    this._failures = '';
     this._scrollViewRef = null;
   }
 
@@ -75,13 +87,19 @@ class App extends React.Component {
   cleanupPortal = () => new Promise(resolve => this.setState({ testPortal: null }, resolve));
 
   async _runTests(uri) {
+    // If the URL contains two pluses let's keep the existing state instead of rerunning tests.
+    // This way we are able to test the Linking module.
+    if (uri && uri.indexOf('++') > -1) {
+      return;
+    }
+
     // Reset results state
     this.setState(App.initialState);
 
     const { jasmineEnv, jasmine } = await this._setupJasmine();
 
     // Load tests, confining to the ones named in the uri
-    let modules = getTestModules();
+    let modules = await getTestModulesAsync();
     if (uri && uri.indexOf('+') > -1) {
       const deepLink = uri.substring(uri.indexOf('+') + 1);
       const filterJSON = JSON.parse(deepLink);
@@ -106,11 +124,14 @@ class App extends React.Component {
         }
       }
     }
-    modules.forEach(m =>
-      m.test(jasmine, {
-        setPortalChild: this.setPortalChild,
-        cleanupPortal: this.cleanupPortal,
-      })
+
+    await Promise.all(
+      modules.map(m =>
+        m.test(jasmine, {
+          setPortalChild: this.setPortalChild,
+          cleanupPortal: this.cleanupPortal,
+        })
+      )
     );
 
     jasmineEnv.execute();
@@ -159,14 +180,22 @@ class App extends React.Component {
         if (result.status === 'passed' || result.status === 'failed') {
           // Open log group if failed
           const grouping = result.status === 'passed' ? '---' : '+++';
+          if (ExponentTest && ExponentTest.log) {
+            ExponentTest.log(`${result.status === 'passed' ? 'PASS' : 'FAIL'} ${result.fullName}`);
+          }
           const emoji = result.status === 'passed' ? ':green_heart:' : ':broken_heart:';
           console.log(`${grouping} ${emoji} ${result.fullName}`);
           this._results += `${grouping} ${result.fullName}\n`;
 
           if (result.status === 'failed') {
+            this._failures += `${grouping} ${result.fullName}\n`;
             result.failedExpectations.forEach(({ matcherName, message }) => {
+              if (ExponentTest && ExponentTest.log) {
+                ExponentTest.log(`${matcherName}: ${message}`);
+              }
               console.log(`${matcherName}: ${message}`);
               this._results += `${matcherName}: ${message}\n`;
+              this._failures += `${matcherName}: ${message}\n`;
             });
             failedSpecs.push(result);
           }
@@ -190,7 +219,13 @@ class App extends React.Component {
         console.log(result);
 
         if (ExponentTest) {
-          ExponentTest.completed(result);
+          // Native logs are truncated so log just the failures for now
+          ExponentTest.completed(
+            JSON.stringify({
+              failed: failedSpecs.length,
+              failures: this._failures,
+            })
+          );
         }
       },
     };

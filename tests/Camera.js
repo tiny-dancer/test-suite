@@ -10,8 +10,11 @@ import { waitFor, mountAndWaitFor as originalMountAndWaitFor, retryForStatus } f
 export const name = 'Camera';
 const style = { width: 200, height: 200 };
 
-export function test(t, { setPortalChild, cleanupPortal }) {
-  t.describe('Camera', () => {
+export async function test(t, { setPortalChild, cleanupPortal }) {
+  const shouldSkipTestsRequiringPermissions = await TestUtils.shouldSkipTestsRequiringPermissionsAsync();
+  const describeWithPermissions = shouldSkipTestsRequiringPermissions ? t.xdescribe : t.describe;
+
+  describeWithPermissions('Camera', () => {
     let instance = null;
 
     const refSetter = ref => {
